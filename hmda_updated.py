@@ -2,14 +2,8 @@ import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
 import matplotlib.pyplot as plt
-import os
-path = os.getcwd()
-filename = 'hmda.txt'
-file_path = os.path.join(path,filename)
-print(file_path)
 
 df = pd.read_csv('C:/ml/python/projects/hmda.txt',delimiter='\t')
-
 
 df.info()
 
