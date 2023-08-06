@@ -2,22 +2,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings('ignore')
-import os
-
-path = 'C:/ml/python/projects/stroke.csv'
-path = os.chdir(path)
-print(path)
-
 
 df = pd.read_csv('C:/ml/python/projects/stroke.csv')
-
-
 df.info()
 
 df['gender'].value_counts()
 df['gender'] = pd.get_dummies(df.gender,prefix='gender').iloc[:,0:1]
-
-
 
 df['id'].value_counts()
 
