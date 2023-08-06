@@ -4,7 +4,7 @@ warnings.filterwarnings('ignore')
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-df = pd.read_csv('C:/ml/python/data/cancer.csv',delimiter=',')
+df = pd.read_csv('C:/ml/python/projects/cancer.csv',delimiter=',')
 
 
 df.info()
