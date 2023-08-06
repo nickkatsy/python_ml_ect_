@@ -3,13 +3,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import warnings
 warnings.filterwarnings('ignore')
-import os
-path = os.chdir('C:/ml/python/projects/Housing.csv')
-print(path)
 
-df = pd.read_csv(path)
-
-
+df = pd.read_csv('C:/ml/python/projects/housing.csv',delimiter=',')
 
 
 df.info()
@@ -144,6 +139,4 @@ print('MSE for Random Forrest Regression Model =',mean_squared_error(y_test, rf_
 
 print('R2 for Decesion Tree= ', r2_score(y_test, tree_score))
 
-print('MSE for decesion tree= ', mean_squared_error(y_test, tree_score))
-
-
+print('MSE for Decesion tree= ', mean_squared_error(y_test, tree_score))
