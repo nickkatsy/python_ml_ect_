@@ -4,7 +4,7 @@ import seaborn as sns
 import warnings
 warnings.filterwarnings('ignore')
 
-df = pd.read_csv('C:/ml/python/projects/diabetes.csv',delimiter=',')
+df = pd.read_csv('https://raw.githubusercontent.com/nickkas/python_ml_ect_/master/diabetes.csv')
 
 
 df.info()
@@ -100,7 +100,3 @@ plt.plot(fpr,tpr)
 plt.ylabel('True Positive Rate')
 plt.xlabel('False Positive Rate')
 plt.show()
-
-
-
-
