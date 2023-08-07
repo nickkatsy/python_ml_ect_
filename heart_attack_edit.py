@@ -82,11 +82,11 @@ clf_roc = roc_auc_score(y_test, clf_pred_prob)
 print('roc for logistic regression model= ',clf_roc*100)
 
 
-# RandomForrest Classification Results
+# Random Forest Classification Results
 
 rff_acc = accuracy_score(y_test, rf_pred)
-print('Random Forrest accuracy= ',rff_acc*100)
+print('Random Forest accuracy= ',rff_acc*100)
 
 
 rff_roc = roc_auc_score(y_test,rf_pred_prob)
-print('RandomForrest roc= ',rff_roc*100)
+print('Random Forest roc= ',rff_roc*100)
