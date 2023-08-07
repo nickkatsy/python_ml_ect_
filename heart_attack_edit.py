@@ -2,7 +2,9 @@ import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
 
-df = pd.read_csv('C:/ml/python/projects/heart.csv',delimiter=',')
+
+
+df = pd.read_csv('https://raw.githubusercontent.com/nickkas/python_ml_ect_/master/heart.csv')
 
 df.info()
 
