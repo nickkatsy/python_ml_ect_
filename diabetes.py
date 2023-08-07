@@ -4,7 +4,7 @@ import seaborn as sns
 import warnings
 warnings.filterwarnings('ignore')
 
-df = pd.read_csv('C:/ml/python/data/diabetes.csv',delimiter=',')
+df = pd.read_csv('C:/ml/python/projects/diabetes.csv',delimiter=',')
 
 
 df.info()
