@@ -3,7 +3,9 @@ import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings('ignore')
 
-df = pd.read_csv('C:/ml/python/projects/stroke.csv')
+url = 'https://raw.githubusercontent.com/nickkas/python_ml_ect_/master/stroke.csv'
+
+df = pd.read_csv(url)
 df.info()
 
 df['gender'].value_counts()
@@ -95,4 +97,3 @@ plt.title('ROC Curve For Logistic Regression Model')
 plt.ylabel('True Positive Rate')
 plt.xlabel('False Positive Rate')
 plt.show()
-
