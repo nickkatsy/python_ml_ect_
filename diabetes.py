@@ -77,13 +77,13 @@ cv_clf = cross_val_score(clf, X,y,cv=10,scoring='roc_auc').max()
 print('Logistic Regression ROC with Cross-Validation',cv_clf*100)
 
 
-#RandomForrest Classification Results
+#Random Forest Classification Results
 
 acc_rfc = accuracy_score(y,rfc_pred)
-print('accuracy score RandomForrest Classification',acc_rfc*100)
+print('accuracy score Random Forest Classification',acc_rfc*100)
 
 roc_rfc = roc_auc_score(y,rfc_pred_prob)
-print('roc using RandomForrest Classification= ',roc_rfc)
+print('roc using Random Forest Classification= ',roc_rfc)
 
 # KNN Classification Results
 
