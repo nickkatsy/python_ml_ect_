@@ -4,7 +4,9 @@ import seaborn as sns
 import warnings
 warnings.filterwarnings('ignore')
 
-df = pd.read_csv('C:/ml/python/projects/housing.csv',delimiter=',')
+url = 'https://raw.githubusercontent.com/nickkas/python_ml_ect_/master/Housing.csv'
+
+df = pd.read_csv(url)
 
 
 df.info()
