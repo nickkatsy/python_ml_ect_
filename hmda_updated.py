@@ -3,9 +3,7 @@ import warnings
 warnings.filterwarnings('ignore')
 import matplotlib.pyplot as plt
 
-url = 'https://raw.githubusercontent.com/nickkas/python_ml_ect_/master/hmda.txt'
-
-df = pd.read_csv(url,delimiter='\t')
+df = pd.read_csv('https://raw.githubusercontent.com/nickkas/python_ml_ect_/master/hmda.txt',delimiter='\t')
 
 df.info()
 
