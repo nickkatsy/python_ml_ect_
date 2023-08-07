@@ -16,10 +16,11 @@ df.nunique()
 print(df.dtypes)
 df.shape
 
+df = df.drop(['Unnamed: 32','id'],axis=1)
 
 df.corr()
 
-df = df.drop(['Unnamed: 32','id'],axis=1)
+
 
 df['diagnosis'] = pd.get_dummies(df.diagnosis,prefix='diagnosis').iloc[:,0:1]
 
@@ -84,12 +85,12 @@ rfc_pred_prob = rfc.predict_proba(X_test)[::,1]
 
 from sklearn.metrics import roc_auc_score,roc_curve,accuracy_score
 
-# Logistic Regression Results
+# Logistic Regression(highest roc out of the three classification methods) Results
 Logistic_regression_accuracy = accuracy_score(y_test,pred_clf)
 print('accuracy of Logistic Regression model= ',Logistic_regression_accuracy*100)
 
 LogisticRegression_roc = roc_auc_score(y_test, pred_prob_clf)
-print('logistic regression roc= ',roc_auc_score(y_test, pred_prob_clf))
+print('logistic regression roc= ',roc_auc_score(y_test, pred_prob_clf)*100)
 
 
 # Decision Tree Results
@@ -98,25 +99,25 @@ Decisiontree_accuracy = accuracy_score(y_test, tree_pred)
 print('Accuracy of Decision Tree= ',Decisiontree_accuracy*100)
 
 Decisiontree_roc = roc_auc_score(y_test, tree_pred_prob)
-print('roc for Desision Tree Classification model= ',roc_auc_score(y_test, tree_pred_prob))
+print('roc for Desision Tree Classification model= ',roc_auc_score(y_test, tree_pred_prob)*100)
 
 
 
-# RandomForrest Classification Results
+# Random Forest Classification Results
 
 #highest ROC score out of the three models
 
 rfc_accuracy = accuracy_score(y_test, pred_rfc)
-print('accuarcy of RandomForrest Classifier= ',roc_auc_score(y_test,pred_rfc))
+print('accuarcy of Random forest Classifier= ',roc_auc_score(y_test,pred_rfc)*100)
 
 
 rfc_roc = roc_auc_score(y_test, rfc_pred_prob)
-print('roc for RandomForrest Classifier= ', roc_auc_score(y_test, rfc_pred_prob))
+print('roc for Random Forest Classifier= ', roc_auc_score(y_test, rfc_pred_prob)*100)
 
 
-fpr, tpr, _ = roc_curve(y_test, rfc_pred_prob)
+fpr, tpr, _ = roc_curve(y_test, pred_prob_clf)
 plt.plot(fpr,tpr)
-plt.title('ROC Curve For Logistic Regression Model')
+plt.title('ROC Curve For Logistic Regression')
 plt.ylabel('True Positive Rate')
 plt.xlabel('False Positive Rate')
 plt.show()
