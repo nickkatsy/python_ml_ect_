@@ -81,14 +81,13 @@ X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.20,random_state=
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.svm import SVR
 
 
 
 lr = LinearRegression()
 rf = RandomForestRegressor()
 dt = DecisionTreeRegressor()
-svr = SVR()
+
 
 
 from sklearn.preprocessing import OneHotEncoder
