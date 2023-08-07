@@ -113,10 +113,10 @@ print('ROC for logistic regression model= ',roc_auc_score(y_test, pred_prob_clf)
 
 
 
-#RandomForrest Classification Results
+#Random Forest Classification Results
 
-print('accuracy for RandomForrest Classifier= ',roc_auc_score(y_test, pred_rfc))
-print('roc_auc for RandomForrest classifier= ',roc_auc_score(y_test, rfc_pred_prob))
+print('accuracy for Random Forest classifier= ',roc_auc_score(y_test, pred_rfc))
+print('roc_auc for Random Forest classifier= ',roc_auc_score(y_test, rfc_pred_prob))
 
 # KNN Classification results
 
