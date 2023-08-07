@@ -4,7 +4,7 @@ warnings.filterwarnings('ignore')
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-df = pd.read_csv('C:/ml/python/projects/cancer.csv',delimiter=',')
+df = pd.read_csv('https://raw.githubusercontent.com/nickkas/python_ml_ect_/master/cancer.csv')
 
 
 df.info()
@@ -120,8 +120,3 @@ plt.title('ROC Curve For Logistic Regression Model')
 plt.ylabel('True Positive Rate')
 plt.xlabel('False Positive Rate')
 plt.show()
-
-
-
-
-
