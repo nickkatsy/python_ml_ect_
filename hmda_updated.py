@@ -3,7 +3,9 @@ import warnings
 warnings.filterwarnings('ignore')
 import matplotlib.pyplot as plt
 
-df = pd.read_csv('C:/ml/python/projects/hmda.txt',delimiter='\t')
+url = 'https://raw.githubusercontent.com/nickkas/python_ml_ect_/master/hmda.txt'
+
+df = pd.read_csv(url,delimiter='\t')
 
 df.info()
 
@@ -83,4 +85,3 @@ fpr, tpr, _ = roc_curve(y_test, y_pred)
 plt.plot(fpr,tpr)
 plt.ylabel('True Positive Rate')
 plt.xlabel('False Positive Rate')
-
