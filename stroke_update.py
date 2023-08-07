@@ -14,7 +14,7 @@ df['id'].value_counts()
 df['stroke'].value_counts()
 
 df.isna().sum()
-df.nunique
+df.nunique()
 
 
 X = df.drop(['id','stroke'],axis=1)
@@ -75,18 +75,18 @@ from sklearn.metrics import roc_auc_score,roc_curve,accuracy_score
 
 #Logistic Regression Results
 
-print('logistic regression accuracy= ',accuracy_score(y_test, clf_pred))
-print('Logistic Regression roc= ',roc_auc_score(y_test, clf_pred_prob))
+print('logistic regression accuracy= ',accuracy_score(y_test, clf_pred)*100)
+print('Logistic Regression roc= ',roc_auc_score(y_test, clf_pred_prob)*100)
 
-# RandomForrest Classification Results
+# Random Forest Classification Results
 
-print('RandomForrest accuracy=',accuracy_score(y_test, rfc_pred))
-print('RandomForrest ROC= ',roc_auc_score(y_test, rfc_pred_prob))
+print('Random Forest accuracy=',accuracy_score(y_test, rfc_pred)*100)
+print('Random Forest ROC= ',roc_auc_score(y_test, rfc_pred_prob)*100)
 
 # KNN Classification Results
 
-print('KNN accuracy=',accuracy_score(y_test, knn_pred))
-print('KNN roc= ',roc_auc_score(y_test, knn_pred_prob))
+print('KNN accuracy= ',accuracy_score(y_test, knn_pred)*100)
+print('KNN roc= ',roc_auc_score(y_test, knn_pred_prob)*100)
 
 
 fpr, tpr, _ = roc_curve(y_test,  clf_pred_prob)
