@@ -128,16 +128,20 @@ tree_score = pipe_tree.predict(X_test)
 
 from sklearn.metrics import r2_score,mean_squared_error
 
+#Linear Regression Results
+
 print('R2 for linear Regression model= ',r2_score(y_test, lr_score)*100)
 
 print('MSE for linear Regression Model= ',mean_squared_error(y_test, lr_score)*100)
 
+#Random Forrest Regression Results
 
-print('R2 value for Random Forrest Regression= ',r2_score(y_test, rf_score)*100)
+print('R2 value for Random Forest Regression= ',r2_score(y_test, rf_score)*100)
 
-print('MSE for Random Forrest Regression Model =',mean_squared_error(y_test, rf_score)*100)
+print('MSE for Random Forest Regression Model =',mean_squared_error(y_test, rf_score)*100)
 
+# Decision Tree Results
 
-print('R2 for Decesion Tree= ', r2_score(y_test, tree_score))
+print('R2 for Decision Tree= ', r2_score(y_test, tree_score)*100)
 
-print('MSE for Decesion tree= ', mean_squared_error(y_test, tree_score))
+print('MSE for Decision Tree=  ', mean_squared_error(y_test, tree_score)*100)
