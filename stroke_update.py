@@ -3,9 +3,7 @@ import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings('ignore')
 
-url = 'https://raw.githubusercontent.com/nickkas/python_ml_ect_/master/stroke.csv'
-
-df = pd.read_csv(url)
+df = pd.read_csv('https://raw.githubusercontent.com/nickkas/python_ml_ect_/master/stroke.csv')
 df.info()
 
 df['gender'].value_counts()
