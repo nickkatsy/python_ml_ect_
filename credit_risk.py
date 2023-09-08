@@ -2,7 +2,7 @@ import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
 
-df = pd.read_csv('C:/ml/python/data/credit_risk.csv',delimiter=',')
+df = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/credit_risk.csv',delimiter=',')
 
 df.info()
 df.isna().sum()
