@@ -70,8 +70,6 @@ ct = make_column_transformer(
     (ohe,['Home','Intent']),(imp,['Emp_length','Rate']),remainder='passthrough')
 
 
-
-
 ct.fit_transform(X)
 
 from sklearn.pipeline import make_pipeline
@@ -85,8 +83,6 @@ clf_pred_prob = clf_pipe.predict_proba(X_test)[::,1]
 rfc_pipe = make_pipeline(ct,rfc).fit(X_train,y_train)
 rfc_pred = rfc_pipe.predict(X_test)
 rfc_pred_prob = rfc_pipe.predict_proba(X_test)[::,1]
-
-
 
 from sklearn.metrics import accuracy_score,roc_auc_score,roc_curve
 
@@ -102,19 +98,10 @@ print('Random Forest Accuracy= ',acc_rfc*100)
 roc_rfc = roc_auc_score(y_test, rfc_pred_prob)
 print('roc for Random Forest= ',roc_rfc*100)
 
-
-
 fpr, tpr, _ = roc_curve(y_test,  rfc_pred_prob)
-
-
 
 plt.plot(fpr,tpr)
 plt.title('Random Forest')
 plt.ylabel('True Positive Rate')
 plt.xlabel('False Positive Rate')
 plt.show()
-
-
-
-
-
