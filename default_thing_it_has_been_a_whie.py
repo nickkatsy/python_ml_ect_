@@ -2,8 +2,6 @@ import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
 
-
-
 df = pd.read_csv('https://raw.githubusercontent.com/LeeMorinUCF/QMB6358F23/main/demo_14_linear_models_in_python/credit_data.csv')
 
 df.info()
@@ -51,7 +49,7 @@ plt_4 = sns.lineplot(df,x='D',y='default',ax=axs2[1,1])
 ### Risk of defaulting based on all variables
 
 
-X = df.drop(['A','B','C','D','default'],axis=1)
+X = df.drop('default',axis=1)
 y = df[['default']]
 
 
@@ -85,37 +83,20 @@ rfc_pred_prob = rfc.predict_proba(X_test)[::,1]
 from sklearn.metrics import accuracy_score, roc_auc_score
 
 
-## Logistic Regression
+#logistic regression
 
-
-accuracy_clf = accuracy_score(y_test, clf_pred)
-print('The accuracy of the logistic regression model for the risk of default',accuracy_clf*100)
+acc_logistic_regression = accuracy_score(y_test, clf_pred)
+print('accuaracy using logistic regression model',acc_logistic_regression*100)
 
 roc_clf = roc_auc_score(y_test, clf_pred_prob)
-print('ROC Logistic Regression',roc_clf*100)
+print('roc score using logistic regression',roc_clf*100)
 
 
 ## Random Forrest Results for default risk
 
 
-accuracy_random_forrest = accuracy_score(y_test, clf_pred)
+accuracy_random_forrest = accuracy_score(y_test, rfc_pred)
 print('accuracy Random Forest Classification',accuracy_random_forrest*100)
 
 roc_rfc = roc_auc_score(y_test, rfc_pred_prob)
 print('roc for defaulting using random forest',roc_rfc*100)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
