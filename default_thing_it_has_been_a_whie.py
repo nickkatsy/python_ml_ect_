@@ -2,6 +2,8 @@ import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
 
+
+
 df = pd.read_csv('https://raw.githubusercontent.com/LeeMorinUCF/QMB6358F23/main/demo_14_linear_models_in_python/credit_data.csv')
 
 df.info()
