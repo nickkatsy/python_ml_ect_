@@ -15,8 +15,6 @@ credit = pd.read_csv('https://raw.githubusercontent.com/LeeMorinUCF/QMB6358F21/m
 
 
 #### will finsih later and then optimize this using scipy.optimize or summin
-#### this is too fun to me and everything else feels like a waste of time
-# I want money. Like, everything else right now is time consuming nonsense
 
 
 df = app.copy()
