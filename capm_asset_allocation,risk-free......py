@@ -261,7 +261,7 @@ rm = 'MV' # Risk measure used
 obj = 'Sharpe' # Objective function
 hist = True # historical data,maybe
 rf = 0 # Risk free rate
-l = 0 # Risk aversion factor, only useful when obj is 'Utility'
+l = 0 # Risk aversion factor
 
 w = port.optimization(model=model, rm=rm, obj=obj, rf=rf, l=l, hist=hist)
 
