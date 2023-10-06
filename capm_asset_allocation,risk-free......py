@@ -4,7 +4,7 @@ import warnings
 warnings.filterwarnings('ignore')
 import riskfolio as rp
 
-df = pd.read_csv('C:/ml/python/data/capm.csv',delimiter=',')
+df = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/capm.csv')
 df.info()
 
 df.describe()
