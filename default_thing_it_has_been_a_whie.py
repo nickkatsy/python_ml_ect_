@@ -10,12 +10,9 @@ df.info()
 
 df.isna().sum()
 
-
 df.isnull().sum()
 
-
 df.nunique()
-
 
 df.corr()
 
@@ -26,30 +23,34 @@ import matplotlib.pyplot as plt
 
 sns.heatmap(df.corr(), annot=True)
 
-
-plt__,axs = plt.subplots(2,3,figsize=(12,6))
-plt_1 = sns.violinplot(df,x='A',ax=axs[0,0])
-plt_2 = sns.countplot(df,x='B',ax=axs[0,1])
-plt__3 = sns.countplot(df,x='C',ax=axs[1,0])
-plt___4 = sns.countplot(df,x='D',ax=axs[1,1])
-plt____5 = sns.lineplot(df,x='amount',y='default',ax=axs[0,2])
-plt____6 = sns.scatterplot(df,x='bmaxrate',y='amount',ax=axs[1,2])
-
-
-
-
-##  Risk of Default
-
-plt_default,axs2 = plt.subplots(2,2,figsize=(12,6))
-plt__1 = sns.barplot(df,x='AA',y='default',ax=axs2[0,0])
-plt__2 = sns.barplot(df,x='B',y='default',ax=axs2[0,1])
-plt__3 = sns.barplot(df,x='C',y='default',ax=axs2[1,0])
-plt_4 = sns.lineplot(df,x='D',y='default',ax=axs2[1,1])
+def subplot_comparisons(dataframe):
+    plt__,axs = plt.subplots(2,3,figsize=(12,6))
+    sns.violinplot(df,x='A',ax=axs[0,0])
+    sns.countplot(df,x='B',ax=axs[0,1])
+    sns.countplot(df,x='C',ax=axs[1,0])
+    sns.countplot(df,x='D',ax=axs[1,1])
+    sns.lineplot(df,x='amount',y='default',ax=axs[0,2])
+    sns.scatterplot(df,x='bmaxrate',y='amount',ax=axs[1,2])
+    plt.show()
 
 
+subplot_comparisons(df)
+
+##  Subplots of Risks of Default based on rating
+
+
+
+def rating_subplots(dataframe):
+    plt_default,axs2 = plt.subplots(2,2,figsize=(12,6))
+    sns.barplot(df,x='AA',y='default',ax=axs2[0,0])
+    sns.barplot(df,x='B',y='default',ax=axs2[0,1])
+    sns.barplot(df,x='C',y='default',ax=axs2[1,0])
+    sns.lineplot(df,x='D',y='default',ax=axs2[1,1])
+    plt.show()
+
+rating_subplots(df)
 
 ### Risk of defaulting based on all variables
-
 
 X = df.drop('default',axis=1)
 y = df[['default']]
@@ -60,6 +61,8 @@ from sklearn.model_selection import train_test_split
 X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.20,random_state=42)
 
 
+
+# Logistic Regression
 from sklearn.linear_model import LogisticRegression
 
 
@@ -70,6 +73,8 @@ clf_pred = clf.predict(X_test)
 
 clf_pred_prob = clf.predict_proba(X_test)[::,1]
 
+
+#Random Forrest
 
 from sklearn.ensemble import RandomForestClassifier
 
