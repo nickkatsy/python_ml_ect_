@@ -1,5 +1,4 @@
 import yfinance as yf
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -38,9 +37,9 @@ portfolio_volatility = np.sqrt(np.dot(weights, np.dot(cov_matrix, weights)))
 sharpe_ratio = (portfolio_expected_return - risk_free_rate) / portfolio_volatility
 
 # Print the results
-print("Portfolio Expected Return:", portfolio_expected_return)
-print("Portfolio Volatility (Standard Deviation):", portfolio_volatility)
-print("Sharpe Ratio:", sharpe_ratio)
+print('Portfolio Expected Return:', portfolio_expected_return)
+print('Portfolio Volatility (Standard Deviation):', portfolio_volatility)
+print('Sharpe Ratio:', sharpe_ratio)
 
 
 
@@ -48,13 +47,12 @@ print("Sharpe Ratio:", sharpe_ratio)
 portfolio_value = (returns.dot(weights) + 1).cumprod()
 plt.figure(figsize=(10, 6))
 plt.plot(portfolio_value.index, portfolio_value, label="Portfolio Value", color='b')
-plt.title("Diversified Portfolio Performance")
-plt.xlabel("Date")
-plt.ylabel("Portfolio Value")
+plt.title('Diversified Portfolio Performance')
+plt.xlabel('Date')
+plt.ylabel('Portfolio Value')
 plt.grid(True)
 plt.legend()
 plt.show()
-
 
 
 
