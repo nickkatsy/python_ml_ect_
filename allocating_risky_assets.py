@@ -64,24 +64,3 @@ plt.figure(figsize=(10, 8))
 sns.heatmap(correlation_matrix_debt, annot=True)
 plt.title('Correlation Matrix of Bonds')
 plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
