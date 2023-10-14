@@ -8,7 +8,7 @@ import seaborn as sns
 tickers = ['^GSPC', '^IXIC', '^DJI', '^FTSE', '^GDAXI']
 treasury_bonds = ['^TNX', '^TYX', 'IEF', 'AGG', 'BND']
 
-# Specify the date range
+# date range
 start_date = '2013-10-21'
 end_date = '2023-10-10'
 
