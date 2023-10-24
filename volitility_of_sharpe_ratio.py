@@ -16,7 +16,7 @@ df = yf.download(stock_tickers, start=start_date, end=end_date)['Adj Close']
 returns = df.pct_change().dropna()
 
 # Define risk-free rate
-risk_free_rate = 0.015  
+risk_free_rate = 0.05  
 
 # Calculate expected returns for each stock
 expected_returns = returns.mean()
