@@ -2,7 +2,8 @@ import yfinance as yf
 from pypfopt import risk_models, EfficientFrontier, expected_returns
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+import warnings
+warnings.filterwarnings('ignore')
 
 # Define the tickers for stocks and treasury bonds
 tickers = ['^GSPC', '^IXIC', '^DJI', '^FTSE', '^GDAXI']
