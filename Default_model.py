@@ -13,7 +13,7 @@ df.corr()
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Visualize the correlation matrix
+
 plt.figure(figsize=(8, 6))
 sns.heatmap(df.corr(), annot=True)
 plt.title('Correlation Matrix')
@@ -46,12 +46,11 @@ y = df['default']
 
 from sklearn.model_selection import train_test_split
 
-# Train Test Split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.20, random_state=42)
 
 from sklearn.linear_model import LogisticRegression
 
-# Logistic Regression Model
+
 clf = LogisticRegression().fit(X_train, y_train)
 clf_pred = clf.predict(X_test)
 clf_pred_prob = clf.predict_proba(X_test)[::,1]
