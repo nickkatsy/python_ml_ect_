@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import yfinance as yf
 from pypfopt import expected_returns, EfficientFrontier
-
+import warnings
+warnings.filterwarnings('ignore')
 
 ticker = ['AAPL','GOOG','T','MGM','IBM','^GSPC','TSLA']
 
@@ -156,7 +157,7 @@ rm = 'MV'
 obj = 'Sharpe'
 hist = True
 rf = 0.04
-l = -.01
+l = -5
 
 w = port.optimization(model=model, rm=rm, obj=obj, rf=rf, l=l, hist=hist)
 
@@ -218,4 +219,6 @@ cov = port.cov
 returns = port.returns
 
 ax = rp.plot_frontier(w_frontier=frontier, mu=mu, cov=cov, returns=returns, rm=rm, rf=rf, alpha=0.05, cmap='viridis', w=w, label=label, marker='*', s=16, c='r', height=6, width=10, ax=None)
+
+plt.plot(frontier.std())
 
