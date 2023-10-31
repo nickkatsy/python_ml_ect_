@@ -14,8 +14,6 @@ print(df['Made'].describe())
 df['Major'].value_counts()
 df['Major'] = df['Major'].str.replace(',', '-', regex=True) 
 
-df_cv = df.copy
-
 
 df.isna().sum()
 
@@ -70,14 +68,11 @@ print(model_4.summary())
 
 
 
-df = df.drop('Name',axis=1)
-
-
 
 df['Major'] = pd.factorize(df['Major'])[0]
+df['Name'] = pd.factorize(df['Name'])[0]
 
 
-df_cv = df.copy()
 
 X = df.drop('Made',axis=1)
 y = df[['Made']]
@@ -149,11 +144,3 @@ def roc_Random_Forest(y_true, y_pred_prob):
     plt.show()
 
 roc_Random_Forest(y, rfc_pred_prob)
-
-
-
-
-
-
-
-
