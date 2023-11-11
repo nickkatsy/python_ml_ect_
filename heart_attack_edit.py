@@ -51,7 +51,22 @@ print(model_age.summary())
 model_chol = sm.OLS(exog=sm.add_constant(df[['chol']]),endog=df[['heart_attack']]).fit()
 print(model_chol.summary())
 
+#for full model
+y_endog = df['heart_attack']
+X_exog = sm.add_constant(df.drop('heart_attack', axis=1))
 
+full_model = sm.GLM(y_endog,X_exog,family=sm.families.Binomial()).fit()
+print(full_model.summary())
+
+
+coefficients = pd.DataFrame({'Feature': X_exog.columns,'Coefficient': full_model.params.values})
+
+# Display coefficients
+print(coefficients)
+
+
+
+#Feature Selection
 
 X = df.drop('heart_attack',axis=1)
 y = df[['heart_attack']]
