@@ -24,20 +24,26 @@ df.corr()
 
 df['diagnosis'] = pd.get_dummies(df.diagnosis,prefix='diagnosis').iloc[:,0:1]
 
+def subplots(df):
+    his,ax1 = plt.subplots(4,3,figsize=(10,6))
+    sns.histplot(df,x='diagnosis',ax=ax1[0,0])
+    sns.histplot(df,x='radius_mean',ax=ax1[0,1])
+    sns.histplot(df,x='texture_mean',ax=ax1[0,2])
+    sns.histplot(df,x='perimeter_mean',ax=ax1[1,0])
+    sns.histplot(df,x='area_mean',ax=ax1[1,1])
+    sns.histplot(df,x='smoothness_mean',ax=ax1[1,2])
+    sns.histplot(df,x='smoothness_mean',ax=ax1[2,0])
+    sns.histplot(df,x='concavity_mean',ax=ax1[2,1])
+    sns.histplot(df,x='compactness_mean',ax=ax1[2,2])   
+    sns.histplot(df,x='concave points_mean',ax=ax1[3,0])
+    sns.histplot(df,x='symmetry_mean',ax=ax1[3,1])
+    sns.histplot(df,x='fractal_dimension_mean',ax=ax1[3,2])
+    plt.show()
 
-his,ax1 = plt.subplots(4,3,figsize=(10,6))
-his1 = sns.histplot(df,x='diagnosis',ax=ax1[0,0])
-his2 = sns.histplot(df,x='radius_mean',ax=ax1[0,1])
-his3 = sns.histplot(df,x='texture_mean',ax=ax1[0,2])
-his4 = sns.histplot(df,x='perimeter_mean',ax=ax1[1,0])
-his5 = sns.histplot(df,x='area_mean',ax=ax1[1,1])
-his6 = sns.histplot(df,x='smoothness_mean',ax=ax1[1,2])
-his7 = sns.histplot(df,x='smoothness_mean',ax=ax1[2,0])
-his8 = sns.histplot(df,x='concavity_mean',ax=ax1[2,1])
-his9 = sns.histplot(df,x='compactness_mean',ax=ax1[2,2])
-his10 = sns.histplot(df,x='concave points_mean',ax=ax1[3,0])
-his11 = sns.histplot(df,x='symmetry_mean',ax=ax1[3,1])
-his12 = sns.histplot(df,x='fractal_dimension_mean',ax=ax1[3,2])
+
+
+subplots(df)
+
 
 
 
@@ -114,10 +120,13 @@ print('accuarcy of Random forest Classifier= ',roc_auc_score(y_test,pred_rfc)*10
 rfc_roc = roc_auc_score(y_test, rfc_pred_prob)
 print('roc for Random Forest Classifier= ', roc_auc_score(y_test, rfc_pred_prob)*100)
 
+def roc_clf(y_true,pred_prob_clf):
+    fpr, tpr, _ = roc_curve(y_test, pred_prob_clf)
+    plt.plot(fpr,tpr)
+    plt.title('ROC Curve For Logistic Regression')
+    plt.ylabel('True Positive Rate')
+    plt.xlabel('False Positive Rate')
+    plt.show()
+    
 
-fpr, tpr, _ = roc_curve(y_test, pred_prob_clf)
-plt.plot(fpr,tpr)
-plt.title('ROC Curve For Logistic Regression')
-plt.ylabel('True Positive Rate')
-plt.xlabel('False Positive Rate')
-plt.show()
+roc_clf(y_test,pred_prob_clf)
