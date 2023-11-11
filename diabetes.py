@@ -13,23 +13,43 @@ df.nunique()
 df.dtypes
 
 
-df.corr()
 
-plt_,axs = plt.subplots(2,4,figsize=(10,6))
-plt_ = sns.boxplot(df[['Pregnancies']],ax=axs[0,0])
-plt_2 = sns.boxplot(df[['Glucose']],ax=axs[0,1])
-plt_3 = sns.boxplot(df[['BloodPressure']],ax=axs[0,2])
-plt_4 = sns.boxplot(df[['SkinThickness']],ax=axs[0,3])
-plt_5 = sns.boxplot(df[['Insulin']],ax=axs[1,0])
-plt_6 = sns.boxplot(df[['BMI']],ax=axs[1,1])
-plt_7 = sns.boxplot(df[['DiabetesPedigreeFunction']],ax=axs[1,2])
-plt_8 = sns.boxplot(df[['Age']],ax=axs[1,3])
 
+
+def desc_plots(df):
+    plt_,axs = plt.subplots(2,4,figsize=(10,6))
+    sns.boxplot(df[['Pregnancies']],ax=axs[0,0])
+    sns.boxplot(df[['Glucose']],ax=axs[0,1])
+    sns.boxplot(df[['BloodPressure']],ax=axs[0,2])
+    sns.boxplot(df[['SkinThickness']],ax=axs[0,3])
+    sns.boxplot(df[['Insulin']],ax=axs[1,0])
+    sns.boxplot(df[['BMI']],ax=axs[1,1])
+    sns.boxplot(df[['DiabetesPedigreeFunction']],ax=axs[1,2])
+    sns.boxplot(df[['Age']],ax=axs[1,3])
+    plt.show()
+
+
+
+desc_plots(df)
 
 
 plt.figure(figsize=(12,4))
 sns.heatmap(df.corr(),annot=True)
 
+
+# descriptive statisics
+
+import statsmodels.api as sm
+
+y_endog = df['Outcome']
+X_exog = sm.add_constant(df.drop('Outcome', axis=1))
+
+full_model = sm.GLM(y_endog,X_exog,family=sm.families.Binomial()).fit()
+print(full_model.summary())
+
+
+coefficients = pd.DataFrame({'Feature': X_exog.columns,'Coefficient': full_model.params.values})
+print(coefficients)
 
 X = df.drop('Outcome',axis=1)
 y = df[['Outcome']]
@@ -94,9 +114,37 @@ roc_knn = roc_auc_score(y, Knn_pred_prob)
 print('roc using knn',roc_auc_score(y, Knn_pred_prob)*100)
 
 
+def logistic_plot(y,clf_roc):
+    fpr, tpr, _ = roc_curve(y,clf_pred_prob)
+    plt.plot(fpr,tpr)
+    plt.title('ROC Curve using Logistic Regression')
+    plt.ylabel('True Positive Rate')
+    plt.xlabel('False Positive Rate')
+    plt.show()
+    
+    
+logistic_plot(y, clf_pred_prob)    
 
-fpr, tpr, _ = roc_curve(y,rfc_pred_prob)
-plt.plot(fpr,tpr)
-plt.ylabel('True Positive Rate')
-plt.xlabel('False Positive Rate')
-plt.show()
+
+def knn_roc_plot(y,roc_knn):
+    fpr,tpr, _ = roc_curve(y, Knn_pred_prob)
+    plt.plot(fpr,tpr)
+    plt.title('ROC Curve for KNN classification')
+    plt.xlabel('FPR')
+    plt.ylabel('TPR')
+    plt.show()
+    
+    
+knn_roc_plot(y, roc_knn)
+
+
+def random_forest_roc_plot(y,rfc_pred_prob):
+    fpr,tpr, _ = roc_curve(y, rfc_pred_prob)
+    plt.plot(fpr,tpr)
+    plt.title('ROC curve using Random Forest')
+    plt.ylabel('TPR')
+    plt.xlabel('FPR')
+    plt.show()
+    
+
+random_forest_roc_plot(y,rfc_pred_prob)
