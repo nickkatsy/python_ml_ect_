@@ -37,37 +37,46 @@ copy.corr()
 sns.scatterplot(copy,x='area',y='price')
 
 
+def bar(copy):
+    bar, ax1 = plt.subplots(2,3,figsize=(10,6))
+    sns.barplot(copy,x='bedrooms',y='price',ax = ax1[0,0])
+    sns.barplot(copy,x='stories',y='price',ax= ax1[0,1])
+    sns.barplot(copy,x='bathrooms',y='price',ax = ax1[0,2])
+    sns.barplot(copy,x='parking',y='price',ax = ax1[1,0])
+    sns.barplot(copy,x='furnishingstatus',y='price',ax=ax1[1,1])
+    sns.barplot(copy,x='airconditioning',y='price',ax=ax1[1,2])
+    plt.show()
+    
+    
+bar(copy)
 
-bar, ax1 = plt.subplots(2,3,figsize=(10,6))
-bar1 = sns.barplot(copy,x='bedrooms',y='price',ax = ax1[0,0])
-bar2 = sns.barplot(copy,x='stories',y='price',ax= ax1[0,1])
-bar3 = sns.barplot(copy,x='bathrooms',y='price',ax = ax1[0,2])
-bar4 = sns.barplot(copy,x='parking',y='price',ax = ax1[1,0])
-bar5 = sns.barplot(copy,x='furnishingstatus',y='price',ax=ax1[1,1])
-bar6 = sns.barplot(copy,x='airconditioning',y='price',ax=ax1[1,2])
-
-
-box0, ax2 = plt.subplots(2,3,figsize=(10,6))
-box1 = sns.boxplot(copy[['area']],ax=ax2[0,0])
-box2 = sns.boxplot(copy['price'],ax=ax2[0,1])
-box3 = sns.boxplot(copy['parking'],ax=ax2[0,2])
-box4 = sns.boxplot(copy['stories'],ax=ax2[1,0])
-box5 = sns.boxplot(copy['bedrooms'],ax=ax2[1,1])
-box6 = sns.boxplot(copy['bathrooms'],ax=ax2[1,2])
-
-
-plt.figure(figsize=(10,6))
-displot1 = sns.displot(copy[['bedrooms']])
-displot2 = sns.displot(copy[['stories']])
-displot3 = sns.displot(copy[['bathrooms']])
-displot4 = sns.displot(copy[['basement']])
-
-
+def box(copy):
+    box0, ax2 = plt.subplots(2,3,figsize=(10,6))
+    sns.boxplot(copy[['area']],ax=ax2[0,0])
+    sns.boxplot(copy['price'],ax=ax2[0,1])
+    sns.boxplot(copy['parking'],ax=ax2[0,2])
+    sns.boxplot(copy['stories'],ax=ax2[1,0])
+    sns.boxplot(copy['bedrooms'],ax=ax2[1,1])
+    sns.boxplot(copy['bathrooms'],ax=ax2[1,2])
+    plt.show()
+    
+box(copy)
 
 
-plt.figure(figsize=(10,6))
-sns.kdeplot(copy,x='price')
-sns.kdeplot(copy,x='area')
+def violin(copy):
+    dis_,axs__ = plt.subplots(2,2,figsize=(10,6))
+    sns.violinplot(copy[['bedrooms']],ax=axs__[0,0])
+    sns.violinplot(copy[['stories']],ax=axs__[0,1])
+    sns.violinplot(copy[['bathrooms']],ax=axs__[1,0])
+    sns.violinplot(copy[['basement']],ax=axs__[1,1])
+    plt.show()
+    
+
+violin(copy)
+
+
+
+
 
 
 
