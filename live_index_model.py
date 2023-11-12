@@ -79,12 +79,3 @@ model_full = sm.OLS(endog=y,exog=sm.add_constant(X)).fit()
 # All together now
 print('\nSummary for All Tickers Together:')
 print(model_full.summary())
-
-
-
-
-
-
-
-
-
