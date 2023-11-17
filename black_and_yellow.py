@@ -35,38 +35,6 @@ def desc_subplots(df):
 
 desc_subplots(df)
 
-#using labelencoder for the sake of time
-
-df1 = df.copy()
-
-
-from sklearn.preprocessing import LabelEncoder
-
-le = LabelEncoder()
-
-for i in df1:
-    df1[i] = le.fit_transform(df1[i])
-
-
-import statsmodels.api as sm
-
-
-model_1 = sm.GLM(exog=df1['Major'],endog=df1['Made']).fit()
-print(model_1.summary())
-
-
-model_2 = sm.GLM(exog=df1['Height'], endog=df1['Made']).fit()
-print(model_2.summary())
-
-
-model_3 = sm.GLM(exog=df1['Distance'],endog=df1['Made']).fit()
-print(model_3.summary())
-
-
-model_4 = sm.GLM(exog=df1['Name'],endog=df1['Made']).fit()
-print(model_4.summary())
-
-
 
 
 df['Major'] = pd.factorize(df['Major'])[0]
@@ -77,6 +45,7 @@ df['Name'] = pd.factorize(df['Name'])[0]
 X = df.drop('Made',axis=1)
 y = df[['Made']]
 
+y.value_counts(normalize=True)
 
 from sklearn.preprocessing import StandardScaler
 
@@ -97,6 +66,23 @@ from sklearn.ensemble import RandomForestClassifier
 rfc = RandomForestClassifier().fit(X,y)
 rfc_pred = rfc.predict(X)
 rfc_pred_prob = rfc.predict_proba(X)[::,1]
+
+
+from sklearn.ensemble import GradientBoostingClassifier
+
+gbc = GradientBoostingClassifier().fit(X,y)
+gbc_pred = gbc.predict(X)
+gbc_pred_prob = gbc.predict_proba(X)[::,1]
+
+from sklearn.naive_bayes import GaussianNB
+
+nbc = GaussianNB().fit(X,y)
+nbc_pred = nbc.predict(X)
+nbc_pred_prob = nbc.predict_proba(X)[::,1]
+
+
+
+
 
 
 from sklearn.metrics import roc_auc_score,roc_curve,accuracy_score
@@ -120,27 +106,73 @@ print(f'the accuaracy using random forrest is: {acc_rfc*100}')
 rfc_roc = roc_auc_score(y,rfc_pred_prob)
 print(f'the roc score using random forest: {rfc_roc*100}')
 
+#Scoring using Gradient Boost classifier
+grad_acc = accuracy_score(y, gbc_pred)
+print(f'the accuracy using Gradinet boost classifier: {grad_acc}')
+
+roc_grad = roc_auc_score(y, gbc_pred_prob)
+print(f'the roc_auc score using Gradient boost: {roc_grad}')
 
 
-def roc_logistic_regression(y_true, y_pred_prob):
-    fpr, tpr, _ = roc_curve(y_true, y_pred_prob)
+
+#scoring using Naive Bayes
+
+nb_accuracy = accuracy_score(y, nbc_pred)
+print(f'the accuracy using Naive Bayes: {nb_accuracy}')
+
+nb_roc = roc_auc_score(y, nbc_pred_prob)
+print(f'the roc_auc score using Naive Bayes: {nb_roc}')
+
+
+
+
+
+# ROC curves plotted based on the results of the models
+
+def roc_logistic_regression(y, y_pred_prob):
+    fpr, tpr, _ = roc_curve(y, y_pred_prob)
     plt.plot(fpr, tpr)
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
-    plt.title('ROC Curve')
+    plt.title('ROC Curve From Logistic Regression')
     plt.show()
 
 roc_logistic_regression(y, clf_pred_prob)
-    
-    
 
 
-def roc_Random_Forest(y_true, y_pred_prob):
-    fpr, tpr, _ = roc_curve(y_true, rfc_pred_prob)
-    plt.plot(fpr, tpr)
+def roc_forrest(y,rfc_pred_prob):
+    fpr,tpr, _ = roc_curve(y, rfc_pred_prob)
+    plt.plot(fpr,tpr)
     plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title('ROC Curve')
+    plt.ylabel('True positive rate')
+    plt.title('ROC Curve from Random Forest')
     plt.show()
 
-roc_Random_Forest(y, rfc_pred_prob)
+
+roc_forrest(y, rfc_pred_prob)
+
+
+
+def roc_gradient_boost(y,gbc_pred_prob):
+    fpr,tpr, _ = roc_curve(y, gbc_pred_prob)
+    plt.plot(fpr,tpr)
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True positive rate')
+    plt.title('ROC Curve from Gradient Boost')
+    plt.show()
+
+
+roc_gradient_boost(y, gbc_pred_prob)
+
+
+def roc_naive_bayes(y,nbc_pred_prob):
+    fpr,tpr, _ = roc_curve(y, nbc_pred_prob)
+    plt.plot(fpr,tpr)
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True positive rate')
+    plt.title('ROC Curve from Naive Bayes')
+    plt.show()
+
+
+
+roc_naive_bayes(y, nbc_pred_prob)
