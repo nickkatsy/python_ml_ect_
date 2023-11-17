@@ -148,7 +148,7 @@ df_merged.info()
 df_merged.corr()
 
 
-df_merged = df_merged.drop(['ssn','zip_code'],axis=1)
+
 
 df_merged.isna().sum()
 
@@ -185,8 +185,26 @@ utility_merged_subplots(df_merged)
 
 
 
+import statsmodels.api as sm
+
+
+model_u = sm.OLS(exog=df_merged['num_late'],endog=df_merged['utility']).fit()
+print(model_u.summary())
+
+model_ssn = sm.OLS(exog=df_merged['ssn'],endog=df_merged['utility']).fit()
+print(model_ssn.summary())
+
+
+
+
+
+
 X_u = df_merged.drop(['utility'], axis=1)
 y_u = df_merged['utility']
+
+full_model = sm.OLS(exog=X_u,endog=y_u).fit()
+full_model.summary()
+
 
 from sklearn.preprocessing import PolynomialFeatures
 
