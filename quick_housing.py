@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 def basic_subplots(dataframe):
   plt____,axs = plt.subplots(2,2,figsize=(12,6))
   sns.scatterplot(df,x='income',y='house_price',ax=axs[0,0])
-  sns.barplot(df,x='in_cali',ax=axs[0,1])
+  sns.kdeplot(df,x='in_cali',ax=axs[0,1])
   sns.violinplot(df['income'],ax=axs[1,0])
   sns.distplot(df['earthquake'],ax=axs[1,1])
   plt.show()
