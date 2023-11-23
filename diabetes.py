@@ -67,6 +67,8 @@ sc.fit_transform(X)
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.naive_bayes import GaussianNB
 
 
 clf = LogisticRegression().fit(X,y)
@@ -81,8 +83,16 @@ Knn = KNeighborsClassifier(n_neighbors=6).fit(X,y)
 Knn_pred = Knn.predict(X)
 Knn_pred_prob = Knn.predict_proba(X)[::,1]
 
+nb = GaussianNB().fit(X,y)
+nb_pred = nb.predict(X)
+nb_pred_prob = nb.predict_proba(X)[::,1]
 
-from sklearn.metrics import roc_auc_score,accuracy_score, roc_curve
+gb = GradientBoostingClassifier().fit(X,y)
+gb_pred = gb.predict(X)
+gb_pred_prob = gb.predict_proba(X)[::,1]
+
+
+from sklearn.metrics import roc_auc_score,roc_curve,accuracy_score
 from sklearn.model_selection import cross_val_score
 
 # Logistic Regression Results
@@ -113,38 +123,33 @@ print('accuarcy score using knn= ',acc_knn*100)
 roc_knn = roc_auc_score(y, Knn_pred_prob)
 print('roc using knn',roc_auc_score(y, Knn_pred_prob)*100)
 
+# Results from Naive Bayes Classification
 
-def logistic_plot(y,clf_roc):
-    fpr, tpr, _ = roc_curve(y,clf_pred_prob)
-    plt.plot(fpr,tpr)
-    plt.title('ROC Curve using Logistic Regression')
-    plt.ylabel('True Positive Rate')
+acc_nb = accuracy_score(y, nb_pred)
+print(f'the Accuracy of the Naive Bayes Classifier: {acc_nb}')
+
+roc_nb = roc_auc_score(y,nb_pred_prob)
+print(f'the roc/auc score from the Naive Bayes Classifier: {roc_nb}')
+
+acc_gb = accuracy_score(y, gb_pred)
+print(f'the accuracy using Gradient boost classifier: {acc_gb}')
+
+roc_gb = roc_auc_score(y,gb_pred_prob)
+print(f'the roc_auc score using Gradient Boost classifier: {roc_gb}')
+
+# ROC Curves plotted
+def roc_curve_plot(y, y_pred_prob,model_name):
+    fpr, tpr, _ = roc_curve(y, y_pred_prob)
+    plt.plot(fpr,tpr,label=model_name)
+    plt.title('ROC Curve')
     plt.xlabel('False Positive Rate')
-    plt.show()
+    plt.ylabel('True Positive Rate')
+
     
     
-logistic_plot(y, clf_pred_prob)    
-
-
-def knn_roc_plot(y,roc_knn):
-    fpr,tpr, _ = roc_curve(y, Knn_pred_prob)
-    plt.plot(fpr,tpr)
-    plt.title('ROC Curve for KNN classification')
-    plt.xlabel('FPR')
-    plt.ylabel('TPR')
-    plt.show()
-    
-    
-knn_roc_plot(y, roc_knn)
-
-
-def random_forest_roc_plot(y,rfc_pred_prob):
-    fpr,tpr, _ = roc_curve(y, rfc_pred_prob)
-    plt.plot(fpr,tpr)
-    plt.title('ROC curve using Random Forest')
-    plt.ylabel('TPR')
-    plt.xlabel('FPR')
-    plt.show()
-    
-
-random_forest_roc_plot(y,rfc_pred_prob)
+roc_curve_plot(y,clf_pred_prob,'Logistic Regression')
+roc_curve_plot(y,rfc_pred_prob,'Random Forest')
+roc_curve_plot(y,nb_pred_prob,'Naive Bayes')
+roc_curve_plot(y,gb_pred_prob,'Gradient Boosting')
+plt.legend()
+plt.show()
