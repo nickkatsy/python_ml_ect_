@@ -217,7 +217,3 @@ returns = port.returns
 ax = rp.plot_frontier(w_frontier=frontier, mu=mu, cov=cov, returns=returns, rm=rm, rf=rf, alpha=0.05, cmap='viridis', w=w, label=label, marker='*', s=16, c='r', height=6, width=10, ax=None)
 
 plt.plot(frontier.std())
-
-
-
-
