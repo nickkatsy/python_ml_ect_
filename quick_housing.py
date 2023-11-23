@@ -20,7 +20,7 @@ df = df.drop('obsn_num',axis=1)
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-def basic_subplots(dataframe):
+def basic_subplots(df):
   plt____,axs = plt.subplots(2,2,figsize=(12,6))
   sns.scatterplot(df,x='income',y='house_price',ax=axs[0,0])
   sns.kdeplot(df,x='in_cali',ax=axs[0,1])
@@ -43,20 +43,19 @@ from sklearn.preprocessing import StandardScaler
 
 
 sc = StandardScaler()
-X_scaler = sc.fit_transform(X)
-y_scaler = sc.fit_transform(y)
+X_scaled = sc.fit_transform(X)
+
 
 # Creating Classifier
 from sklearn.linear_model import LogisticRegression
-clf = LogisticRegression().fit(X_scaler,y_scaler)
+clf = LogisticRegression().fit(X_scaled,y)
 
-clf_pred = clf.predict(X_scaler)
+clf_pred = clf.predict(X_scaled)
 
-clf_pred_prob = clf.predict_proba(X_scaler)[::,1]
+clf_pred_prob = clf.predict_proba(X_scaled)[::,1]
 
 # 5-Fold CV
 from sklearn.model_selection import cross_val_score
 
-cv = cross_val_score(clf,X_scaler,y_scaler,cv=5,scoring='roc_auc').mean()
+cv = cross_val_score(clf,X_scaled,y,cv=5,scoring='roc_auc').mean()
 print(cv*100)
-
