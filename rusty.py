@@ -12,8 +12,8 @@ start_date = '2013-10-10'
 end_date = '2023-12-09'
 
 
-stocks_df = yf.download(tickers=stock_tickers,start=start_date,end=end_date)['Adj Close']
-bonds_df = yf.download(tickers=bond_tickers,start=start_date,end=end_date)['Adj Close']
+stocks_df = yf.download(tickers=stock_tickers,start=start_date,end=end_date)['Close']
+bonds_df = yf.download(tickers=bond_tickers,start=start_date,end=end_date)['Close']
 
 stock_returns = stocks_df.pct_change().dropna()
 bond_returns = bonds_df.pct_change().dropna()
