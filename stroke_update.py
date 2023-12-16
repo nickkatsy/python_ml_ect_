@@ -6,6 +6,9 @@ warnings.filterwarnings('ignore')
 df = pd.read_csv('https://raw.githubusercontent.com/nickkas/python_ml_ect_/master/stroke.csv')
 df.info()
 
+df.isna().sum()
+df.nunique()
+
 df['gender'].value_counts()
 df['gender'] = pd.get_dummies(df.gender,prefix='gender').iloc[:,0:1]
 
@@ -13,8 +16,7 @@ df['id'].value_counts()
 
 df['stroke'].value_counts()
 
-df.isna().sum()
-df.nunique()
+
 
 
 X = df.drop(['id','stroke'],axis=1)
@@ -112,7 +114,7 @@ def roc_curve_plot(y_true, y_pred_prob, model_name):
 
 roc_curve_plot(y_test,clf_pred_prob,'Logistic Regression')
 roc_curve_plot(y_test,rfc_pred_prob,'Random Forest')
-roc_curve_plot(y_test,knn_pred_prob,'Decision Trees')
+roc_curve_plot(y_test,knn_pred_prob,'KNN')
 roc_curve_plot(y_test,nb_pred_prob,'Naive Bayes')
 roc_curve_plot(y_test,GBC_pred_prob,'Gradient Boosting')
 plt.legend()
