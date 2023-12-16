@@ -24,10 +24,6 @@ df['Sex'] = df['Sex'].map({'female':0,'male':1})
 
 copy = df.copy()
 
-copy.dropna()
-
-
-
 
 
 def misc(copy):
@@ -44,7 +40,6 @@ def misc(copy):
 misc(copy)
 
 
-
 def more_subs(copy):
     plt_2,ax2 = plt.subplots(2,2,figsize=(10,6))
     sns.barplot(copy,x='Sex',y='Survived',ax=ax2[0,0])
@@ -56,7 +51,6 @@ def more_subs(copy):
 
 
 more_subs(copy)
-
 
 
 X = df.drop('Survived',axis=1)
