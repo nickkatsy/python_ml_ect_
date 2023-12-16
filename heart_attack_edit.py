@@ -16,10 +16,14 @@ df['heart_attack'] = df['target']
 
 df = df.drop('target',axis=1)
 
-df.corr()
+
 
 import seaborn as sns
 import matplotlib.pyplot as plt
+
+
+sns.heatmap(df.corr(), annot=True)
+
 
 def subplots(df):
     plt_,ax1 = plt.subplots(3,3,figsize=(12,5))
@@ -74,12 +78,6 @@ y = df[['heart_attack']]
 y.value_counts(normalize=True)
 
 
-from sklearn.preprocessing import StandardScaler
-
-sc = StandardScaler()
-
-sc.fit_transform(X)
-
 
 
 
@@ -87,50 +85,73 @@ from sklearn.model_selection import train_test_split
 
 X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.20,random_state=42)
 
+from sklearn.preprocessing import StandardScaler
+
+sc = StandardScaler()
+
+X_train_scaled = sc.fit_transform(X_train)
+X_test_scaled = sc.transform(X_test)
 
 
 from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-
-
-clf = LogisticRegression().fit(X_train,y_train)
-clf_pred = clf.predict(X_test)
-clf_pred_prob = clf.predict_proba(X_test)[::,1]
-
-rf = RandomForestClassifier().fit(X_train,y_train)
-rf_pred = rf.predict(X_test)
-rf_pred_prob = rf.predict_proba(X_test)[::,1]
+from sklearn.ensemble import RandomForestClassifier,GradientBoostingClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
 
 
 
-from sklearn.metrics import roc_auc_score,accuracy_score,roc_curve
+clf = LogisticRegression().fit(X_train_scaled,y_train)
+clf_pred = clf.predict(X_test_scaled)
+clf_pred_prob = clf.predict_proba(X_test_scaled)[::,1]
 
-#Logistic Regression
-
-clf_acc = accuracy_score(y_test, clf_pred)
-print('logistic regression accuracy=', clf_acc*100)
-
-clf_roc = roc_auc_score(y_test, clf_pred_prob)
-print('roc for logistic regression model= ',clf_roc*100)
+rf = RandomForestClassifier().fit(X_train_scaled,y_train)
+rf_pred = rf.predict(X_test_scaled)
+rf_pred_prob = rf.predict_proba(X_test_scaled)[::,1]
 
 
-# Random Forest Classification Results
-
-rff_acc = accuracy_score(y_test, rf_pred)
-print('Random Forest accuracy= ',rff_acc*100)
-
-
-rff_roc = roc_auc_score(y_test,rf_pred_prob)
-print('Random Forest roc= ',rff_roc*100)
+knn = KNeighborsClassifier(n_neighbors=7).fit(X_train_scaled,y_train)
+knn_pred = knn.predict(X_test_scaled)
+knn_pred_prob = knn.predict_proba(X_test_scaled)[::,1]
 
 
-def roc_rfc(y_true,rf_pred_prob):
-    fpr,tpr, _ = roc_curve(y_test,rf_pred_prob)
-    plt.plot(fpr,tpr)
-    plt.title('ROC curve for random forest')
-    plt.ylabel('True positive rate')
+
+nb = GaussianNB().fit(X_train_scaled,y_train)
+nb_pred = nb.predict(X_test_scaled)
+nb_pred_prob = nb.predict_proba(X_test_scaled)[::,1]
+
+
+GBC = GradientBoostingClassifier().fit(X_train_scaled,y_train)
+GBC_pred = GBC.predict(X_test_scaled)
+GBC_pred_prob = GBC.predict_proba(X_test_scaled)[::,1]
+
+
+
+from sklearn.metrics import roc_auc_score,roc_curve,accuracy_score
+
+def evaluate_model(model_name,y_true,y_pred,y_pred_prob):
+    acc = accuracy_score(y_true, y_pred)
+    roc = roc_auc_score(y_true, y_pred_prob)
+    print(f'{model_name} - Accuracy: {acc * 100:.2f}%, ROC-AUC: {roc * 100:.2f}%')
+
+evaluate_model('Logistic Regression', y_test,clf_pred,clf_pred_prob)
+evaluate_model('Random Forest', y_test,rf_pred,rf_pred_prob)
+evaluate_model('Naive Bayes', y_test,nb_pred,nb_pred_prob)
+evaluate_model('Gradient Boosting',y_test,GBC_pred,GBC_pred_prob)
+evaluate_model('KNN', y_test,knn_pred, knn_pred_prob)
+
+
+
+def roc_curve_plot(y_true, y_pred_prob, model_name):
+    fpr, tpr, _ = roc_curve(y_true, y_pred_prob)
+    plt.plot(fpr,tpr,label=model_name)
+    plt.title('ROC Curve')
     plt.xlabel('False Positive Rate')
-    plt.show()
-    
+    plt.ylabel('True Positive Rate')
 
-roc_rfc(y_test, rf_pred_prob)
+roc_curve_plot(y_test,clf_pred_prob,'Logistic Regression')
+roc_curve_plot(y_test,rf_pred_prob,'Random Forest')
+roc_curve_plot(y_test,knn_pred_prob,'KNN')
+roc_curve_plot(y_test,nb_pred_prob,'Naive Bayes')
+roc_curve_plot(y_test,GBC_pred_prob,'Gradient Boosting')
+plt.legend()
+plt.show()
