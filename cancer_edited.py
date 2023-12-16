@@ -26,7 +26,7 @@ df['diagnosis'] = pd.get_dummies(df.diagnosis,prefix='diagnosis').iloc[:,0:1]
 
 def subplots(df):
     his,ax1 = plt.subplots(4,3,figsize=(10,6))
-    sns.histplot(df,x='diagnosis',ax=ax1[0,0])
+    sns.kdeplot(df,x='diagnosis',ax=ax1[0,0])
     sns.histplot(df,x='radius_mean',ax=ax1[0,1])
     sns.histplot(df,x='texture_mean',ax=ax1[0,2])
     sns.histplot(df,x='perimeter_mean',ax=ax1[1,0])
@@ -45,10 +45,6 @@ def subplots(df):
 subplots(df)
 
 
-
-
-plt.figure(figsize=(12,5))
-sns.displot(df,x='diagnosis')
 
 
 
@@ -71,7 +67,8 @@ X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.20,random_state=
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier,GradientBoostingClassifier
+from sklearn.naive_bayes import GaussianNB
 
 
 clf = LogisticRegression().fit(X_train,y_train)
@@ -84,49 +81,38 @@ tree_pred = tree.predict(X_test)
 tree_pred_prob = tree.predict_proba(X_test)[::,1]
 
 rfc = RandomForestClassifier().fit(X_train,y_train)
-pred_rfc = rfc.predict(X_test)
+rfc_pred = rfc.predict(X_test)
 rfc_pred_prob = rfc.predict_proba(X_test)[::,1]
 
 
-
-from sklearn.metrics import roc_auc_score,roc_curve,accuracy_score
-
-# Logistic Regression(highest roc out of the three classification methods) Results
-Logistic_regression_accuracy = accuracy_score(y_test,pred_clf)
-print('accuracy of Logistic Regression model= ',Logistic_regression_accuracy*100)
-
-LogisticRegression_roc = roc_auc_score(y_test, pred_prob_clf)
-print('logistic regression roc= ',roc_auc_score(y_test, pred_prob_clf)*100)
+nb = GaussianNB().fit(X_train,y_train)
+nb_pred = nb.predict(X_test)
+nb_pred_prob = nb.predict_proba(X_test)[::,1]
 
 
-# Decision Tree Results
-
-Decisiontree_accuracy = accuracy_score(y_test, tree_pred)
-print('Accuracy of Decision Tree= ',Decisiontree_accuracy*100)
-
-Decisiontree_roc = roc_auc_score(y_test, tree_pred_prob)
-print('roc for Desision Tree Classification model= ',roc_auc_score(y_test, tree_pred_prob)*100)
+GBC = GradientBoostingClassifier().fit(X_train, y_train)
+GBC_pred = GBC.predict(X_test)
+GBC_pred_prob = GBC.predict_proba(X_test)[::,1]
 
 
 
-# Random Forest Classification Results
-
-#highest ROC score out of the three models
-
-rfc_accuracy = accuracy_score(y_test, pred_rfc)
-print('accuarcy of Random forest Classifier= ',roc_auc_score(y_test,pred_rfc)*100)
 
 
-rfc_roc = roc_auc_score(y_test, rfc_pred_prob)
-print('roc for Random Forest Classifier= ', roc_auc_score(y_test, rfc_pred_prob)*100)
 
-def roc_clf(y_true,pred_prob_clf):
-    fpr, tpr, _ = roc_curve(y_test, pred_prob_clf)
-    plt.plot(fpr,tpr)
-    plt.title('ROC Curve For Logistic Regression')
-    plt.ylabel('True Positive Rate')
-    plt.xlabel('False Positive Rate')
-    plt.show()
-    
 
-roc_clf(y_test,pred_prob_clf)
+
+
+from sklearn.metrics import roc_auc_score,accuracy_score
+
+
+def evaluate_model(model_name,y_true,y_pred,y_pred_prob):
+    acc = accuracy_score(y_true, y_pred)
+    roc = roc_auc_score(y_true, y_pred_prob)
+    print(f'{model_name} - Accuracy: {acc * 100:.2f}%, ROC-AUC: {roc * 100:.2f}%')
+
+evaluate_model('Logistic Regression', y_test,pred_clf,pred_prob_clf)
+evaluate_model('Random Forest', y_test,rfc_pred,rfc_pred_prob)
+evaluate_model('Naive Bayes', y_test,nb_pred,nb_pred_prob)
+evaluate_model('Gradient Boosting',y_test,GBC_pred,GBC_pred_prob)
+evaluate_model('Decision Trees', y_test,tree_pred, tree_pred_prob)
+
