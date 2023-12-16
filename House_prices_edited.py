@@ -33,8 +33,14 @@ for i in copy:
 copy.corr()
 
 
+def scatter(copy):
+    sns.scatterplot(copy,x='area',y='price')
+    plt.plot()
 
-sns.scatterplot(copy,x='area',y='price')
+
+scatter(copy)
+
+
 
 
 def bar(copy):
@@ -76,10 +82,6 @@ violin(copy)
 
 
 
-
-
-
-
 X = df.drop('price',axis=1)
 y = df.price
 
@@ -90,14 +92,16 @@ X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.20,random_state=
 
 
 from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor,GradientBoostingRegressor
 from sklearn.tree import DecisionTreeRegressor
+
 
 
 
 lr = LinearRegression()
 rf = RandomForestRegressor()
 dt = DecisionTreeRegressor()
+gb = GradientBoostingRegressor()
 
 
 
@@ -119,38 +123,32 @@ ct.fit_transform(X)
 from sklearn.pipeline import make_pipeline
 
 pipe_lr = make_pipeline(ct,lr).fit(X_train,y_train)
+pred_lr = pipe_lr.predict(X_test)
 
 pipe_rf = make_pipeline(ct,rf).fit(X_train,y_train)
+pred_rf = pipe_rf.predict(X_test)
 
 pipe_tree = make_pipeline(ct,dt).fit(X_train,y_train)
+tree_pred = pipe_tree.predict(X_test)
 
 
+pipe_gb = make_pipeline(ct,gb).fit(X_train,y_train)
+gb_pred = pipe_gb.predict(X_test)
 
-lr_score = pipe_lr.predict(X_test)
-
-rf_score = pipe_rf.predict(X_test)
-
-tree_score = pipe_tree.predict(X_test)
 
 
 
 
 from sklearn.metrics import r2_score,mean_squared_error
 
-#Linear Regression Results
+def evaluate_model(model_name,y_true,y_pred):
+    r2 = r2_score(y_true,y_pred)
+    mse = mean_squared_error(y_true,y_pred)
+    print(f'{model_name} - R-squared: {r2:.2f}, MSE: {mse:.2f}')
+    
+    
 
-print('R2 for linear Regression model= ',r2_score(y_test, lr_score)*100)
-
-print('MSE for linear Regression Model= ',mean_squared_error(y_test, lr_score)*100)
-
-#Random Forrest Regression Results
-
-print('R2 value for Random Forest Regression= ',r2_score(y_test, rf_score)*100)
-
-print('MSE for Random Forest Regression Model =',mean_squared_error(y_test, rf_score)*100)
-
-# Decision Tree Results
-
-print('R2 for Decision Tree= ', r2_score(y_test, tree_score)*100)
-
-print('MSE for Decision Tree=  ', mean_squared_error(y_test, tree_score)*100)
+evaluate_model('Linear Regression', y_test,pred_lr)
+evaluate_model('Random Forest', y_test,pred_rf)
+evaluate_model('Decision Trees', y_test,tree_pred)
+evaluate_model('Gradient Boosting', y_test,gb_pred)
