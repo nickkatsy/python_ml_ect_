@@ -67,9 +67,11 @@ X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.30,random_state=
 
 
 from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier,GradientBoostingClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+
 
 clf = LogisticRegression()
 
@@ -78,6 +80,11 @@ rfc = RandomForestClassifier()
 knn = KNeighborsClassifier(n_neighbors=13)
 
 tree_clf = DecisionTreeClassifier()
+
+gb = GradientBoostingClassifier()
+
+nb = GaussianNB()
+
 
 
 from sklearn.preprocessing import OneHotEncoder
@@ -100,7 +107,7 @@ from sklearn.pipeline import make_pipeline
 
 pipe_clf = make_pipeline(ct,clf).fit(X_train,y_train)
 pred_clf = pipe_clf.predict(X_test)
-pred_prob_clf = pipe_clf.predict_proba(X_test)[::,1]
+clf_pred_prob = pipe_clf.predict_proba(X_test)[::,1]
 
 pipe_rfc = make_pipeline(ct,rfc).fit(X_train,y_train)
 pred_rfc = pipe_rfc.predict(X_test)
@@ -115,38 +122,42 @@ pipe_tree = make_pipeline(ct,tree_clf).fit(X_train,y_train)
 pred_tree = pipe_tree.predict(X_test)
 pred_prob_tree = pipe_tree.predict_proba(X_test)[::,1]
 
-from sklearn.metrics import accuracy_score, roc_auc_score, roc_curve
 
-#logistic regression results
+pipe_gb = make_pipeline(ct,gb).fit(X_train,y_train)
+gb_pred = pipe_gb.predict(X_test)
+gb_pred_prob = pipe_gb.predict_proba(X_test)[::,1]
 
-acc = accuracy_score(y_test, pred_clf)
-print('accuracy score for logistic regression= ',acc*100)
-print('ROC for logistic regression model= ',roc_auc_score(y_test, pred_prob_clf))
-
-
-
-#Random Forest Classification Results
-
-print('accuracy for Random Forest classifier= ',roc_auc_score(y_test, pred_rfc))
-print('roc_auc for Random Forest classifier= ',roc_auc_score(y_test, rfc_pred_prob))
-
-# KNN Classification results
-
-print('accuracy score for KNN classifier',accuracy_score(y_test, pred_knn))
-print('roc_auc for knn classification',roc_auc_score(y_test,knn_pred_prob))
-
-# Decision Tree Classfication results
-print('Accuracy for decsion tree classifier= ',accuracy_score(y_test,pred_tree))
-print('ROC for tree classifier',roc_auc_score(y_test, pred_prob_tree))
+nb_pipe = make_pipeline(ct,nb).fit(X_train,y_train)
+nb_pred = nb_pipe.predict(X_test)
+nb_pred_prob = nb_pipe.predict_proba(X_test)[::,1]
 
 
-def logistic_roc(y_test,pred_prob_clf):
-    fpr,tpr, _ = roc_curve(y_test,pred_prob_clf)
-    plt.plot(fpr,tpr)
-    plt.ylabel('True Positive Rate')
+from sklearn.metrics import accuracy_score,roc_auc_score,roc_curve
+
+def evaluate_model(model_name,y_true,y_pred,y_pred_prob):
+    acc = accuracy_score(y_true, y_pred)
+    roc = roc_auc_score(y_true, y_pred_prob)
+    print(f'{model_name} - Accuracy: {acc * 100:.2f}%, ROC-AUC: {roc * 100:.2f}%')
+
+evaluate_model('Logistic Regression', y_test,pred_clf,clf_pred_prob)
+evaluate_model('Random Forest', y_test,pred_rfc,rfc_pred_prob)
+evaluate_model('Naive Bayes', y_test,nb_pred,nb_pred_prob)
+evaluate_model('Gradient Boosting',y_test,gb_pred,gb_pred_prob)
+evaluate_model('KNN', y_test,pred_knn, knn_pred_prob)
+
+
+
+def roc_curve_plot(y_true, y_pred_prob, model_name):
+    fpr, tpr, _ = roc_curve(y_true, y_pred_prob)
+    plt.plot(fpr,tpr,label=model_name)
+    plt.title('ROC Curve')
     plt.xlabel('False Positive Rate')
-    plt.title('The ROC curve from the Logistic Regression Model')
-    plt.show()
-    
+    plt.ylabel('True Positive Rate')
 
-logistic_roc(y_test, pred_prob_clf)
+roc_curve_plot(y_test,clf_pred_prob,'Logistic Regression')
+roc_curve_plot(y_test,rfc_pred_prob,'Random Forest')
+roc_curve_plot(y_test,knn_pred_prob,'KNN')
+roc_curve_plot(y_test,nb_pred_prob,'Naive Bayes')
+roc_curve_plot(y_test,gb_pred_prob,'Gradient Boosting')
+plt.legend()
+plt.show()
