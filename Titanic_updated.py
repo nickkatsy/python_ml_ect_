@@ -18,12 +18,16 @@ print(df.dtypes)
 
 df = df.drop((['Name','PassengerId','Cabin','Ticket']),axis=1)
 
+
+df['Sex'] = df['Sex'].map({'female':0,'male':1})
+
+
 copy = df.copy()
 
 copy.dropna()
 
 
-copy['Sex'] = copy['Sex'].map({'female':0,'male':1})
+
 
 
 def misc(copy):
