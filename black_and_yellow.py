@@ -6,7 +6,7 @@ warnings.filterwarnings('ignore')
 df = pd.read_csv('https://raw.githubusercontent.com/JoshuaEubanksUCF/Black_and_Gold_Analytics/main/Student_Basket_Data/BGA_basketball_data.csv')
 
 df.info()
-df.corr()
+df.isna().sum()
 
 
 print(df['Made'].describe())
@@ -25,11 +25,11 @@ sns.heatmap(df.corr(), annot=True)
 
 
 def desc_subplots(df):
-    plt_,axs = plt.subplots(2,2,figsize=(10,6))
-    sns.barplot(df,x='Height',y='Major',ax=axs[0,0])
-    sns.scatterplot(df,x='Distance',y='Major',ax=axs[0,1])
-    sns.barplot(df,x='Made',y='Major',ax=axs[1,0])
-    sns.countplot(df,x='Major',ax=axs[1,1])
+    plt_,axs = plt.subplots(2,2,figsize=(12,6))
+    sns.barplot(df,x='Height',y='Made',ax=axs[0,0])
+    sns.barplot(df,x='Distance',y='Made',ax=axs[0,1])
+    sns.barplot(df,x='Major',y='Made',ax=axs[1,0])
+    sns.countplot(df,x='Made',ax=axs[1,1])
     plt.show()
 
 
@@ -45,83 +45,58 @@ df['Name'] = pd.factorize(df['Name'])[0]
 X = df.drop('Made',axis=1)
 y = df[['Made']]
 
-y.value_counts(normalize=True)
 
-from sklearn.preprocessing import StandardScaler
 
-sc = StandardScaler()
 
-sc.fit_transform(X)
+from sklearn.model_selection import train_test_split
+
+
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.20,random_state=0)
 
 
 from sklearn.linear_model import LogisticRegression
 
-clf = LogisticRegression().fit(X,y)
-clf_pred = clf.predict(X)
-clf_pred_prob = clf.predict_proba(X)[::,1]
+clf = LogisticRegression().fit(X_train,y_train)
+clf_pred = clf.predict(X_test)
+clf_pred_prob = clf.predict_proba(X_test)[::,1]
 
 
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier,GradientBoostingClassifier
 
-rfc = RandomForestClassifier().fit(X,y)
-rfc_pred = rfc.predict(X)
-rfc_pred_prob = rfc.predict_proba(X)[::,1]
+rfc = RandomForestClassifier().fit(X_train,y_train)
+rfc_pred = rfc.predict(X_test)
+rfc_pred_prob = rfc.predict_proba(X_test)[::,1]
 
 
-from sklearn.ensemble import GradientBoostingClassifier
 
-gbc = GradientBoostingClassifier().fit(X,y)
-gbc_pred = gbc.predict(X)
-gbc_pred_prob = gbc.predict_proba(X)[::,1]
+gbc = GradientBoostingClassifier().fit(X_train,y_train)
+gbc_pred = gbc.predict(X_test)
+gbc_pred_prob = gbc.predict_proba(X_test)[::,1]
 
 from sklearn.naive_bayes import GaussianNB
 
-nbc = GaussianNB().fit(X,y)
-nbc_pred = nbc.predict(X)
-nbc_pred_prob = nbc.predict_proba(X)[::,1]
+nbc = GaussianNB().fit(X_train,y_train)
+nbc_pred = nbc.predict(X_test)
+nbc_pred_prob = nbc.predict_proba(X_test)[::,1]
 
 
 
 
 
-
+# Results from each model
 from sklearn.metrics import roc_auc_score,roc_curve,accuracy_score
 
 
-#Results from Logistic Regression
+def evaluate_model(model_name,y_true,y_pred,y_pred_prob):
+    acc = accuracy_score(y_true, y_pred)
+    roc = roc_auc_score(y_true, y_pred_prob)
+    print(f'{model_name} - Accuracy: {acc * 100:.2f}%, ROC-AUC: {roc * 100:.2f}%')
 
-acc_clf = accuracy_score(y, clf_pred)
-print(f'The accuracy for the logistic regression model is: {acc_clf*100}')
+evaluate_model('Logistic Regression', y_test,clf_pred,clf_pred_prob)
+evaluate_model('Random Forest', y_test,rfc_pred,rfc_pred_prob)
+evaluate_model('Naive Bayes', y_test,nbc_pred,nbc_pred_prob)
+evaluate_model('Gradient Boosting',y_test,gbc_pred,gbc_pred_prob)
 
-roc_clf = roc_auc_score(y, clf_pred_prob)
-print(f'the roc score for the logistic regression model: {roc_clf*100}')
-
-
-#scores using random forrest
-
-acc_rfc = accuracy_score(y, rfc_pred)
-print(f'the accuaracy using random forrest is: {acc_rfc*100}')
-
-
-rfc_roc = roc_auc_score(y,rfc_pred_prob)
-print(f'the roc score using random forest: {rfc_roc*100}')
-
-#Scoring using Gradient Boost classifier
-grad_acc = accuracy_score(y, gbc_pred)
-print(f'the accuracy using Gradinet boost classifier: {grad_acc}')
-
-roc_grad = roc_auc_score(y, gbc_pred_prob)
-print(f'the roc_auc score using Gradient boost: {roc_grad}')
-
-
-
-#scoring using Naive Bayes
-
-nb_accuracy = accuracy_score(y, nbc_pred)
-print(f'the accuracy using Naive Bayes: {nb_accuracy}')
-
-nb_roc = roc_auc_score(y, nbc_pred_prob)
-print(f'the roc_auc score using Naive Bayes: {nb_roc}')
 
 
 
@@ -129,50 +104,16 @@ print(f'the roc_auc score using Naive Bayes: {nb_roc}')
 
 # ROC curves plotted based on the results of the models
 
-def roc_logistic_regression(y, y_pred_prob):
-    fpr, tpr, _ = roc_curve(y, y_pred_prob)
-    plt.plot(fpr, tpr)
+def roc_curve_plot(y_test, y_pred_prob, model_name):
+    fpr, tpr, _ = roc_curve(y_test, y_pred_prob)
+    plt.plot(fpr,tpr,label=model_name)
+    plt.title('ROC Curve')
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
-    plt.title('ROC Curve From Logistic Regression')
-    plt.show()
 
-roc_logistic_regression(y, clf_pred_prob)
-
-
-def roc_forrest(y,rfc_pred_prob):
-    fpr,tpr, _ = roc_curve(y, rfc_pred_prob)
-    plt.plot(fpr,tpr)
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True positive rate')
-    plt.title('ROC Curve from Random Forest')
-    plt.show()
-
-
-roc_forrest(y, rfc_pred_prob)
-
-
-
-def roc_gradient_boost(y,gbc_pred_prob):
-    fpr,tpr, _ = roc_curve(y, gbc_pred_prob)
-    plt.plot(fpr,tpr)
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True positive rate')
-    plt.title('ROC Curve from Gradient Boost')
-    plt.show()
-
-
-roc_gradient_boost(y, gbc_pred_prob)
-
-
-def roc_naive_bayes(y,nbc_pred_prob):
-    fpr,tpr, _ = roc_curve(y, nbc_pred_prob)
-    plt.plot(fpr,tpr)
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True positive rate')
-    plt.title('ROC Curve from Naive Bayes')
-    plt.show()
-
-
-
-roc_naive_bayes(y, nbc_pred_prob)
+roc_curve_plot(y_test,clf_pred_prob,'Logistic Regression')
+roc_curve_plot(y_test,nbc_pred_prob,'Naive Bayes')
+roc_curve_plot(y_test,gbc_pred_prob,'Gradient Boosting')
+roc_curve_plot(y_test,rfc_pred_prob,'Random Forest')
+plt.legend()
+plt.show()
