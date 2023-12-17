@@ -23,6 +23,7 @@ def desc_subplots(df):
     sns.barplot(df,x='Distance',y='Made',ax=axs[0,1])
     sns.barplot(df,x='Major',y='Made',ax=axs[1,0])
     sns.countplot(df,x='Made',ax=axs[1,1])
+    axs[1,0].tick_params(axis='x',rotation=45)
     plt.show()
 
 
@@ -128,8 +129,6 @@ def evaluate_cv_model(model,X,y,cv=10):
     print(f'Max ROC-AUC: {max_roc_auc * 100:.2f}%')
 
     return max_roc_auc
-
-
 
 
 clf_lr = LogisticRegression()
