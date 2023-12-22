@@ -31,9 +31,9 @@ def display_images(folder_path,label):
     plt.show()
 
 # Pictures of the dogs
-display_images('C:/ml/python/data/lucy_sunny/Sunny','Sunny')
-display_images('C:/ml/python/data/lucy_sunny/Lucy','Lucy')
-display_images('C:/ml/python/data/lucy_sunny/Sunny_and_Lucy','Both')
+display_images('https://github.com/nickkatsy/python_ml_ect_/tree/master/Sunny','Sunny')
+display_images('https://github.com/nickkatsy/python_ml_ect_/tree/master/Lucy','Lucy')
+display_images('https://github.com/nickkatsy/python_ml_ect_/tree/master/Sunny_and_Lucy','Both')
 
 
 def load_images(folder_path,label):
@@ -49,17 +49,17 @@ def load_images(folder_path,label):
     return np.array(images), np.array(labels)
 
 # Load images for each class
-sunny_images, sunny_labels = load_images('C:/ml/python/data/lucy_sunny/Sunny',class_names_labels['Sunny'])
-lucy_images, lucy_labels = load_images('C:/ml/python/data/lucy_sunny/Lucy',class_names_labels['Lucy'])
-both_images, both_labels = load_images('C:/ml/python/data/lucy_sunny/Sunny_and_Lucy',class_names_labels['both'])
+sunny_images, sunny_labels = load_images('https://github.com/nickkatsy/python_ml_ect_/tree/master/Sunny',class_names_labels['Sunny'])
+lucy_images, lucy_labels = load_images('https://github.com/nickkatsy/python_ml_ect_/tree/master/Lucy',class_names_labels['Lucy'])
+both_images, both_labels = load_images('https://github.com/nickkatsy/python_ml_ect_/tree/master/Sunny_and_Lucy',class_names_labels['both'])
 
 
 
 
 # images for each Sunny,Lucy, and both
-sunny_images, sunny_labels = load_images('C:/ml/python/data/lucy_sunny/Sunny', class_names_labels['Sunny'])
-lucy_images, lucy_labels = load_images('C:/ml/python/data/lucy_sunny/Lucy', class_names_labels['Lucy'])
-both_images, both_labels = load_images('C:/ml/python/data/lucy_sunny/Sunny_and_Lucy', class_names_labels['both'])
+sunny_images, sunny_labels = load_images('https://github.com/nickkatsy/python_ml_ect_/tree/master/Sunny', class_names_labels['Sunny'])
+lucy_images, lucy_labels = load_images('https://github.com/nickkatsy/python_ml_ect_/tree/master/Lucy', class_names_labels['Lucy'])
+both_images, both_labels = load_images('https://github.com/nickkatsy/python_ml_ect_/tree/master/Sunny_and_Lucy', class_names_labels['both'])
 
 # Concatenate images and labels
 X = np.concatenate([sunny_images,lucy_images,both_images],axis=0)
