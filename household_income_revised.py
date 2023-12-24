@@ -34,19 +34,27 @@ sns.heatmap(df1.corr(), annot=True)
 
 
 def subplots(df1):
-    plt_, axs = plt.subplots(2, 2, figsize=(12,10))
+    plt_,axs = plt.subplots(2,2,figsize=(15, 8),gridspec_kw={'hspace':0.5})
 
-    sns.barplot(x='education', y='income',data=df1,ax=axs[0,0])
-    axs[0,0].set_title('Education vs. Income')
+    sns.barplot(x='education',y='income',data=df1, ax=axs[0,0])
+    axs[0,0].set_title('Education vs. Income (0: <= 50K, 1: > 50K)')
+    axs[0,0].set_xlabel('Education Level')
+    axs[0,0].set_ylabel('Income')
 
-    sns.kdeplot(x='age',y='hours_per_week',hue='education',data=df1,fill=True,ax=axs[0,1])
-    axs[0,1].set_title('Age vs. Hours per Week')
+    sns.kdeplot(x='age', y='hours_per_week', hue='education',data=df1,fill=True,ax=axs[0,1])
+    axs[0,1].set_title('Age vs. Hours per Week by Education')
+    axs[0,1].set_xlabel('Age')
+    axs[0,1].set_ylabel('Hours per Week')
 
-    sns.countplot(x='marital_status', hue='income',data=df1,ax=axs[1,0])
-    axs[1,0].set_title('Marital Status')
+    sns.countplot(x='marital_status',hue='income',data=df1,ax=axs[1,0])
+    axs[1,0].set_title('Marital Status (0: <= 50K, 1: > 50K)')
+    axs[1,0].set_xlabel('Marital Status')
+    axs[1,0].set_ylabel('Count')
 
     sns.boxplot(x='income',y='age',data=df1,ax=axs[1,1])
-    axs[1,1].set_title('Age vs. Income')
+    axs[1,1].set_title('Age vs. Income (0: <= 50K, 1: > 50K)')
+    axs[1,1].set_xlabel('Income')
+    axs[1,1].set_ylabel('Age')
 
     plt.show()
 
