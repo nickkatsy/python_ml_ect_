@@ -21,8 +21,6 @@ from sklearn.preprocessing import LabelEncoder
 
 le = LabelEncoder()
 
-obj_col = df.select_dtypes('object').columns
-
 for i in df1:
     df1[i] = le.fit_transform(df1[i])
 
