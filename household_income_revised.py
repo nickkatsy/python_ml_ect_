@@ -178,8 +178,8 @@ evaluate_model(y_test, gbc_pred, gbc_pred_prob, 'Gradient Boost')
 def ROC(y_test,y_pred_prob,model_name):
     fpr,tpr, _ = roc_curve(y_test, y_pred_prob)
     plt.plot(fpr,tpr,label=model_name)
-    plt.xlabel('True Positive Rate')
-    plt.ylabel('False Positive Rate')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
     
 
 
