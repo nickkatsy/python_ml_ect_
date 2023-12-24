@@ -3,7 +3,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-df = pd.read_csv('C:/ml/python/data/income.csv',delimiter=',')
+df = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/income.csv')
 
 df.isna().sum()
 df.describe()
