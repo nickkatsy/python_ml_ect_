@@ -8,6 +8,12 @@ df = pd.read_csv('C:/ml/python/data/christmas_movies.csv',delimiter=',')
 
 df.info()
 df.isna().sum()
+df.duplicated()
+df.nunique()
+df['img_src']
+
+df = df.drop(['img_src','description'],axis=1)
+
 
 obj_cols = df.select_dtypes(include='object').columns
 for col in obj_cols:
@@ -16,7 +22,6 @@ for col in obj_cols:
 df.nunique()
 df['type'].nunique()
 df['type'] = [1 if X == 'Movie' else 0 for X in df['type']]
-
 
 
 
@@ -118,5 +123,3 @@ ROC(y_test,nb_pred_prob,'Naive Bayes')
 ROC(y_test,lda_pred_prob,'LDA')
 plt.legend()
 plt.show()
-
-
