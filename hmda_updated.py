@@ -164,13 +164,14 @@ svc_pred_prob = svc.predict_proba(X_test_scaled)[::,1]
 
 #Scoring the models by roc_auc score and accuracy
 
-from sklearn.metrics import roc_auc_score,roc_curve,accuracy_score
+from sklearn.metrics import roc_auc_score,roc_curve,accuracy_score,f1_score
 
 
 def evaluate(y_test,y_pred,y_pred_prob,model_name):
     acc = accuracy_score(y_test, y_pred)
     roc = roc_auc_score(y_test, y_pred_prob)
-    print(f'{model_name} --Accuracy-- {acc*100:.2f}%; --ROC-- {roc*100:.2f}%')
+    f1 = f1_score(y_test, y_pred)
+    print(f'{model_name} --Accuracy-- {acc*100:.2f}%; --ROC-- {roc*100:.2f}%; --F1-- {f1*100:.2f}%')
     
     
 evaluate(y_test, lr_pred, lr_pred_prob, 'Logistic Regression')
