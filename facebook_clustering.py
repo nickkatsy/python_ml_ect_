@@ -3,7 +3,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-data = pd.read_csv('C:/ml/python/data/kmeans_fb.csv',delimiter=',')
+data = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/kmeans_fb.csv')
 data.info()
 data.isna().sum()
 data = data.drop(['Column1','Column2','Column3','Column4','status_id','status_published'],axis=1)
