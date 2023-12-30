@@ -1,72 +1,71 @@
 import yfinance as yf
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import PolynomialFeatures
 import warnings
 warnings.filterwarnings('ignore')
+from pypfopt import expected_returns,risk_models,EfficientFrontier
+
 
 sp500 = '^GSPC'
 
-tickers = ['AAPL', 'GOOG', 'T', 'F', 'AMZN']
+tickers = ['AAPL','GOOG','T','F','AMZN','TGT','SBUX']
 
 
 start_date = '2021-01-01'
-end_date = '2023-11-13'
+end_date = '2023-12-29'
 
 
-df_500 = yf.download(sp500, start=start_date, end=end_date)['Adj Close']
+df_500 = yf.download(sp500, start=start_date, end=end_date)['Close']
 
-df = yf.download(tickers, start=start_date, end=end_date)['Adj Close']
+df = yf.download(tickers, start=start_date, end=end_date)['Close']
 
 
-returns = df.pct_change().dropna()
+stock_returns = df.pct_change().dropna()
 
 
 risk_free_rate = 0.05
 
 
-expected_returns = returns.mean()
+mu_s = expected_returns.mean_historical_return(df)
+cov_s = risk_models.sample_cov(df)
 
-
-cov_matrix = returns.cov()
+ef_stocks = EfficientFrontier(mu_s, cov_s)
 
 # Equally weighted. Change as you please.
-weights = [0.2, 0.2, 0.2, 0.2, 0.2]
+weights = ef_stocks.max_sharpe(risk_free_rate)
+cleaned_weights = ef_stocks.clean_weights()
 
 
-portfolio_expected_return = np.dot(expected_returns, weights)
 
+portfolio_expected_return = ef_stocks.portfolio_performance()[0]
+print(portfolio_expected_return)
 
-portfolio_volatility = np.sqrt(np.dot(weights, np.dot(cov_matrix, weights)))
+portfolio_volatility = ef_stocks.portfolio_performance()[1]
 
 
 sharpe_ratio = (portfolio_expected_return - risk_free_rate) / portfolio_volatility
-
 
 print('Portfolio Expected Return:', portfolio_expected_return)
 print('Portfolio Volatility (Standard Deviation):', portfolio_volatility)
 print('Sharpe Ratio:', sharpe_ratio)
 
-# change degree as you please
-degree = 2
-poly = PolynomialFeatures(degree=degree,include_bias=False)
-returns_poly = poly.fit_transform(returns)
+# Change degree as you please, it does not change anything
+degree = 3
+poly = PolynomialFeatures(degree=degree, include_bias=False)
+stock_returns_poly = poly.fit_transform(stock_returns)
 
-
-correlation_matrix = pd.DataFrame(returns_poly).corr()
-
+correlation_matrix = pd.DataFrame(stock_returns_poly).corr()
 
 print('Correlation Matrix:')
 print(correlation_matrix)
 
+# Performance
+metrics_labels = ['Expected Return','Volatility','Sharpe Ratio']
+metrics_values = [portfolio_expected_return,portfolio_volatility,sharpe_ratio]
 
-portfolio_value = (returns.dot(weights) + 1).cumprod()
 plt.figure(figsize=(10,6))
-plt.plot(portfolio_value.index, portfolio_value, label='Portfolio Value')
-plt.title('Diversified Portfolio Performance')
-plt.xlabel('Date')
-plt.ylabel('Portfolio Value')
-plt.grid(True)
-plt.legend()
+plt.bar(metrics_labels,metrics_values,color=['blue','orange','green'])
+plt.title('Diversified Portfolio Performance Metrics')
+plt.ylabel('Value')
 plt.show()
