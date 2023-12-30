@@ -62,8 +62,8 @@ imp = SimpleImputer()
 
 
 ct = make_column_transformer(
-    (ohe, ['Home','Intent']),
-    (imp, ['Emp_length','Rate']),
+    (ohe, X.select_dtypes(include='object').columns),
+    (imp, X.select_dtypes(include=['int64','float64']).columns),
     remainder='passthrough')
 
 
@@ -73,51 +73,48 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 
 
+lr = LogisticRegression()
+nb = GaussianNB()
+rfc = RandomForestClassifier()
+gbc = GradientBoostingClassifier()
+
+
 from sklearn.pipeline import make_pipeline
 
 
-clf_pipe = make_pipeline(ct,LogisticRegression()).fit(X_train, y_train)
-rfc_pipe = make_pipeline(ct,RandomForestClassifier()).fit(X_train, y_train)
-pipe_nb = make_pipeline(ct,GaussianNB()).fit(X_train, y_train)
-pipe_gbc = make_pipeline(ct,GradientBoostingClassifier()).fit(X_train, y_train)
 
 # Predictions
-clf_pred = clf_pipe.predict(X_test)
-clf_pred_prob = clf_pipe.predict_proba(X_test)[::,1]
 
-rfc_pred = rfc_pipe.predict(X_test)
-rfc_pred_prob = rfc_pipe.predict_proba(X_test)[::,1]
 
-nb_pred = pipe_nb.predict(X_test)
-nb_pred_prob = pipe_nb.predict_proba(X_test)[::,1]
-
-gbc_pred = pipe_gbc.predict(X_test)
-gbc_pred_prob = pipe_gbc.predict_proba(X_test)[::,1]
-
-from sklearn.metrics import roc_auc_score,roc_curve,accuracy_score
+from sklearn.metrics import roc_auc_score,roc_curve,accuracy_score,f1_score
 
 # results from models
-def evaluate_model(model_name,y_true,y_pred,y_pred_prob):
-    acc = accuracy_score(y_true, y_pred)
-    roc = roc_auc_score(y_true, y_pred_prob)
-    print(f'{model_name} - Accuracy: {acc * 100:.2f}%, ROC-AUC: {roc * 100:.2f}%')
+def evaluate_model(model,X_train,X_test,y_train,y_test):
+    pipe = make_pipeline(ct,model).fit(X_train,y_train)
+    pred = pipe.predict(X_test)
+    pred_prob = pipe.predict_proba(X_test)[::,1]
+    acc = accuracy_score(y_test, pred)
+    f1 = f1_score(y_test, pred)
+    roc = roc_auc_score(y_test,pred_prob)
+    print(f'{model.__class__.__name__} - Accuracy: {acc * 100:.2f}%, ROC-AUC: {roc * 100:.2f}%; --F1--{f1*100:.2f}%')
+    return pred,pred_prob
 
-evaluate_model('Logistic Regression', y_test,clf_pred,clf_pred_prob)
-evaluate_model('Random Forest', y_test,rfc_pred,rfc_pred_prob)
-evaluate_model('Naive Bayes', y_test,nb_pred,nb_pred_prob)
-evaluate_model('Gradient Boosting',y_test,gbc_pred,gbc_pred_prob)
+lr_pred,lr_pred_prob = evaluate_model(lr, X_train, X_test, y_train, y_test)
+rfc_pred,rfc_pred_prob = evaluate_model(rfc, X_train, X_test, y_train, y_test)
+nb_pred,nb_pred_prob = evaluate_model(nb, X_train, X_test, y_train, y_test)
+gbc_pred,gbc_pred_prob = evaluate_model(gbc, X_train, X_test, y_train, y_test)
 
 # ROC Curves
-def roc_curve_plot(y_true, y_pred_prob, model_name):
-    fpr, tpr, _ = roc_curve(y_true, y_pred_prob)
-    plt.plot(fpr,tpr,label=model_name)
+def roc_curve_plot(y_test,y_pred_prob, model):
+    fpr, tpr, _ = roc_curve(y_test,y_pred_prob)
+    plt.plot(fpr,tpr,label=model.__class__.__name__)
     plt.title('ROC Curve')
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
 
-roc_curve_plot(y_test,clf_pred_prob,'Logistic Regression')
-roc_curve_plot(y_test,rfc_pred_prob,'Random Forest')
-roc_curve_plot(y_test,nb_pred_prob,'Naive Bayes')
-roc_curve_plot(y_test,gbc_pred_prob,'Gradient Boosting')
+roc_curve_plot(y_test,lr_pred_prob,lr)
+roc_curve_plot(y_test,rfc_pred_prob,rfc)
+roc_curve_plot(y_test,nb_pred_prob,nb)
+roc_curve_plot(y_test,gbc_pred_prob,gbc)
 plt.legend()
 plt.show()
