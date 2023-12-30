@@ -13,6 +13,8 @@ print(df.dtypes)
 df.nunique()
 
 
+df['Default'] = [1 if X == 1 else 0 for X in df['Default']]
+
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -83,7 +85,7 @@ from sklearn.naive_bayes import GaussianNB
 nb = GaussianNB()
 
 from sklearn.neighbors import KNeighborsClassifier
-knn = KNeighborsClassifier(n_neighbors=6)
+knn = KNeighborsClassifier(n_neighbors=8)
 
 from sklearn.pipeline import make_pipeline
 
