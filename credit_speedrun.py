@@ -87,69 +87,46 @@ knn = KNeighborsClassifier(n_neighbors=6)
 
 from sklearn.pipeline import make_pipeline
 
-lr_pipe = make_pipeline(ct,lr).fit(X_train,y_train)
-lr_pred = lr_pipe.predict(X_test)
-lr_pred_prob = lr_pipe.predict_proba(X_test)[::,1]
 
-
-rfc_pipe = make_pipeline(ct,rfc).fit(X_train,y_train)
-rfc_pred = rfc_pipe.predict(X_test)
-rfc_pred_prob = rfc_pipe.predict_proba(X_test)[::,1]
-
-
-gbc_pipe = make_pipeline(ct,gbc).fit(X_train,y_train)
-gbc_pred = gbc_pipe.predict(X_test)
-gbc_pred_prob = gbc_pipe.predict_proba(X_test)[::,1]
-
-
-tree_pipe = make_pipeline(ct,tree).fit(X_train,y_train)
-tree_pred = tree_pipe.predict(X_test)
-tree_pred_prob = tree_pipe.predict_proba(X_test)[::,1]
-
-nb_pipe = make_pipeline(ct,nb).fit(X_train,y_train)
-nb_pred = nb_pipe.predict(X_test)
-nb_pred_prob = nb_pipe.predict_proba(X_test)[::,1]
-
-
-knn_pipe = make_pipeline(ct,knn).fit(X_train,y_train)
-knn_pred = knn_pipe.predict(X_test)
-knn_pred_prob = knn_pipe.predict_proba(X_test)[::,1]
 
 
 
 from sklearn.metrics import roc_auc_score,roc_curve,f1_score,confusion_matrix,accuracy_score
 
 
-def evaluate_model(y_true,y_pred,y_pred_prob,model_name):
-    acc = accuracy_score(y_true, y_pred)
-    roc = roc_auc_score(y_true, y_pred_prob)
-    f1 = f1_score(y_true, y_pred)
-    cm = confusion_matrix(y_true, y_pred)
+def evaluate_model(model,X_train,X_test,y_train,y_test):
+    pipe = make_pipeline(ct,model).fit(X_train,y_train)
+    pred = pipe.predict(X_test)
+    pred_prob = pipe.predict_proba(X_test)[::,1]
+    acc = accuracy_score(y_test, pred)
+    roc = roc_auc_score(y_test, pred_prob)
+    f1 = f1_score(y_test, pred)
+    cm = confusion_matrix(y_test, pred)
     print('Confusion Matrix',cm)
-    print(f'{model_name} --Accuracy-- {acc*100:.2f}%; --ROC-- {roc*100:.2f}%; --F1-- {f1*100:.2f}%')
-    
+    print(f'{model.__class__.__name__} --Accuracy-- {acc*100:.2f}%; --ROC-- {roc*100:.2f}%; --F1-- {f1*100:.2f}%')
+    return pred,pred_prob
 
-evaluate_model(y_test, lr_pred, lr_pred_prob, 'Logistic Regression')
-evaluate_model(y_test, rfc_pred, rfc_pred_prob, 'Random Forest')
-evaluate_model(y_test, tree_pred, tree_pred_prob, 'Decision Tree Classifier')
-evaluate_model(y_test, gbc_pred, gbc_pred_prob, 'Gradient Boost')
-evaluate_model(y_test, knn_pred, knn_pred_prob, 'K-Nearest Neighbors')
-evaluate_model(y_test, nb_pred, nb_pred_prob, 'Naive Bayes')
+lr_pred,lr_pred_prob = evaluate_model(lr, X_train, X_test, y_train, y_test)
+rfc_pred,rfc_pred_prob = evaluate_model(rfc,X_train,X_test,y_train,y_test)
+gbc_pred,gbc_pred_prob =  evaluate_model(gbc,X_train,X_test,y_train,y_test)
+nb_pred,nb_pred_prob = evaluate_model(nb, X_train, X_test, y_train, y_test)
+knn_pred,knn_pred_prob = evaluate_model(knn, X_train, X_test, y_train, y_test)
+tree_pred,tree_pred_prob = evaluate_model(tree, X_train, X_test, y_train, y_test)
 
 
-def ROC_Curve(y_true,y_pred_prob,model_name):
+def ROC_Curve(y_test,y_pred_prob,model):
     fpr,tpr, _ = roc_curve(y_test, y_pred_prob)
-    plt.plot(fpr,tpr,label=model_name)
+    plt.plot(fpr,tpr,label=model.__class__.__name__)
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
 
 
 
-ROC_Curve(y_test, lr_pred_prob,'Logistic Regression')
-ROC_Curve(y_test, rfc_pred_prob, 'Random Forest')
-ROC_Curve(y_test, gbc_pred_prob, 'Gradient Boost Classifier')
-ROC_Curve(y_test, tree_pred_prob, 'Trees')
-ROC_Curve(y_test, knn_pred_prob, 'K-Nearest Neighbors')
-ROC_Curve(y_test, nb_pred_prob, 'Naive Bayes')
+ROC_Curve(y_test,lr_pred_prob,lr)
+ROC_Curve(y_test,rfc_pred_prob,rfc)
+ROC_Curve(y_test,gbc_pred_prob,gbc)
+ROC_Curve(y_test,tree_pred_prob,tree)
+ROC_Curve(y_test,nb_pred_prob,nb)
+ROC_Curve(y_test, knn_pred_prob,knn)
 plt.legend()
 plt.show()
