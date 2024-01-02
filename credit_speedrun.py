@@ -136,7 +136,7 @@ plt.legend()
 plt.show()
 
 
-# Ranomized GridSearch
+# Cross-Validation
 
 from sklearn.model_selection import cross_val_score
 
