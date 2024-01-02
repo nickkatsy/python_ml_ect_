@@ -21,7 +21,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 def basic_subplots(df):
-  plt____,axs = plt.subplots(2,2,figsize=(12,6))
+  _,axs = plt.subplots(2,2,figsize=(12,6))
   sns.scatterplot(df,x='income',y='house_price',ax=axs[0,0])
   sns.kdeplot(df,x='in_cali',ax=axs[0,1])
   sns.violinplot(df['income'],ax=axs[1,0])
@@ -54,71 +54,61 @@ X_test_scaled = sc.transform(X_test)
 
 # Creating Classifier
 from sklearn.linear_model import LogisticRegression
-clf = LogisticRegression().fit(X_train_scaled,y_train)
-
-clf_pred = clf.predict(X_test_scaled)
-
-clf_pred_prob = clf.predict_proba(X_test_scaled)[::,1]
+lr = LogisticRegression()
 
 
 from sklearn.naive_bayes import GaussianNB
 
-nb = GaussianNB().fit(X_train_scaled,y_train)
-nb_pred = nb.predict(X_test_scaled)
-nb_pred_prob = nb.predict_proba(X_test_scaled)[::,1]
-
-from sklearn.ensemble import GradientBoostingClassifier
-
-gbc = GradientBoostingClassifier().fit(X_train_scaled,y_train)
-gbc_pred = gbc.predict(X_test_scaled)
-gbc_pred_prob = gbc.predict_proba(X_test_scaled)[::,1]
-
-# scores
-from sklearn.metrics import accuracy_score,roc_auc_score,roc_curve
-
-acc_clf = accuracy_score(y_test, clf_pred)
-print(f'the accuaracy of the logistic regression model: {acc_clf}')
-
-roc_clf = roc_auc_score(y_test,clf_pred_prob)
-print(f'the roc_auc score of the logistic regression model: {roc_clf}')
+nb = GaussianNB()
 
 
-acc_nb = accuracy_score(y_test, nb_pred)
-print(f'the accuracy using Naive Bayes: {acc_nb}')
-roc_nb = roc_auc_score(y_test, nb_pred_prob)
-print(roc_nb)
+from sklearn.ensemble import GradientBoostingClassifier,RandomForestClassifier,BaggingClassifier
 
-acc_gbc = accuracy_score(y_test, gbc_pred)
-print(f'the accuracy using Gradient Boost: {acc_gbc}')
-
-roc_gbc = roc_auc_score(y_test, gbc_pred_prob)
-print(f'the roc_auc score using Gradient Boost: {roc_gbc}')
+gbc = GradientBoostingClassifier()
+rfc = RandomForestClassifier()
+BC = BaggingClassifier()
 
 
 
-# cross-validation results
+
+
+
+
+
+# ROC_AUC and Accuracy Scores
+from sklearn.metrics import accuracy_score,roc_auc_score
+
+
+def evaluate_model(model,X_train_scaled,X_test_scaled,y_train,y_test):
+    model = model.fit(X_train_scaled,y_train)
+    pred = model.predict(X_test_scaled)
+    pred_prob = model.predict_proba(X_test_scaled)[::,1]
+    acc = accuracy_score(y_test, pred)
+    roc = roc_auc_score(y_test, pred_prob)
+    print(f'{model.__class__.__name__}, --Accuracy-- {acc*100:.2f}%; --ROC-- {roc*100:.2f}%')
+    return pred,pred_prob
+
+
+lr_pred,lr_pred_prob = evaluate_model(lr, X_train_scaled, X_test_scaled, y_train, y_test)
+nb_pred,nb_pred_prob = evaluate_model(nb, X_train_scaled, X_test_scaled, y_train, y_test)
+gbc_pred,gbc_pred_prob = evaluate_model(gbc, X_train_scaled, X_test_scaled, y_train, y_test)
+rfc_pred,rfc_pred_prob = evaluate_model(rfc, X_train_scaled, X_test_scaled, y_train, y_test)
+BC_pred,BC_pred_prob = evaluate_model(BC, X_train_scaled, X_test_scaled, y_train, y_test)
+
+
+# cross-val scores
 from sklearn.model_selection import cross_val_score
 
-cv_clf = cross_val_score(clf,X_train_scaled,y_train,cv=10,scoring='roc_auc').mean()
-print(f'the roc_auc score using 10-fold cv for logistic regression model: {cv_clf}')
 
-cv_nb = cross_val_score(nb,X_train_scaled, y_train,cv=10,scoring='roc_auc').mean()
-print(f'the 10-fold cross validation score using the Naive Bayes Classifier: {cv_nb}')
-
-cv_gbc = cross_val_score(gbc, X_train_scaled,y_train,cv=10,scoring='roc_auc').mean()
-print(f'the score of the Gradient Boost classifier using 10-fold cross-validation: {cv_gbc}')
+def cross_validation(model,X_train_scaled,y_train):
+    cv_scores = cross_val_score(model, X_train_scaled,y_train, cv=5,scoring='roc_auc').mean()
+    print(f'{model.__class__.__name__}, --ROC_AUC Score 5-fold Cross Valiation-- {cv_scores*100:.2f}%')
+    return cv_scores
 
 
-def roc_curve_plot(y_test, y_pred_prob, model_name):
-    fpr, tpr, _ = roc_curve(y_test, y_pred_prob)
-    plt.plot(fpr,tpr,label=model_name)
-    plt.title('ROC Curve')
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-
-roc_curve_plot(y_test,clf_pred_prob,'Logistic Regression')
-roc_curve_plot(y_test,nb_pred_prob,'Naive Bayes')
-roc_curve_plot(y_test,gbc_pred_prob,'Gradient Boosting')
-plt.legend()
-plt.show()
+lr_scores = cross_validation(lr, X_train_scaled, y_train)
+nb_scores = cross_validation(nb, X_train_scaled, y_train)
+gbc_scores = cross_validation(gbc, X_train_scaled, y_train)
+rfc_scores = cross_validation(rfc, X_train_scaled, y_train)
+BC_scores = cross_validation(BC, X_train_scaled, y_train)
 
