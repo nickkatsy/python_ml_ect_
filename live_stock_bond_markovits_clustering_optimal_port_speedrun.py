@@ -4,7 +4,7 @@ warnings.filterwarnings('ignore')
 from pypfopt import expected_returns,risk_models,EfficientFrontier
 import yfinance as yf
 
-
+#link to speedrun: https://www.youtube.com/watch?v=2uOCKN-KcSo
 stocks = ['IBM','MCD','AAPL','GOOGL','TSLA']
 
 bonds = ['BND','HYG','TIP','IEF','LQD']
@@ -111,7 +111,7 @@ tree_pred = evaluate_stuffff(tree, X_train, X_test, y_train, y_test)
 
 
 #clustering#####
-df_stocks = stocks_df.copy()
+df_stocks = yf.download(tickers=stocks,start=start_date,end=end_date)
 features = df_stocks[['Close','High','Low']]
 
 
@@ -164,6 +164,8 @@ from sklearn.metrics import silhouette_score
 sh = silhouette_score(pca_scaled,labels)
 print(f'the sh score: {sh*100:.2f}%')
 print(kmeans.inertia_)
+
+
 
 
 
