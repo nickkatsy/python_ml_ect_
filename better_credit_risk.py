@@ -1,65 +1,69 @@
 import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
+df = pd.read_csv('C:/ML/python/data/credit_risk.csv',delimiter=',')
+
+df.info()
+df = df.drop('Id',axis=1)
+
+df.describe()
+print(df.dtypes)
+df.nunique()
+df.isna().sum()
 
 
-df = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/credit_risk.csv')
-
-print(df.info())
-print(df.isna().sum())
-print(df.nunique())
-print(df['Default'].value_counts())
+df['Default'] = [1 if X == 'Y' else 0 for X in df['Default']]
 
 
-df['Default'] = pd.get_dummies(df['Default'], prefix='Default').iloc[:,0:1]
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+
+df1 = df.copy()
+
+
+for i in df1:
+    df1[i] = le.fit_transform(df1[i])
+
+
 
 
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-sns.heatmap(df.corr(),annot=True)
+sns.heatmap(df1.corr(), annot=True)
 plt.show()
 
-
-def descriptive_subplots(df):
-    plt_, axs = plt.subplots(3,3,figsize=(10,6))
-    sns.countplot(df,x='Home',ax=axs[0,0])
-    sns.countplot(df,x='Status',ax=axs[0,1])
-    sns.scatterplot(df,x='Age',y='Income',ax=axs[0,2])
-    sns.violinplot(df[['Status']],ax=axs[1,0])
-    sns.countplot(df,x='Default',ax=axs[1,1])
-    sns.kdeplot(df,x='Age',ax=axs[1,2])
-    sns.countplot(df,x='Intent',ax=axs[2,0])
-    sns.scatterplot(df[['Income']],ax=axs[2,1])
-    sns.countplot(df,x='Status',ax=axs[2,2])
+def sub(df1):
+    _,axs = plt.subplots(2,2,figsize=(10,5))
+    sns.countplot(x='Default',ax=axs[0,0],data=df1)
+    sns.violinplot(x='Status',y='Default',ax=axs[0,1],data=df1)
+    sns.boxplot(x='Home',y='Income',ax=axs[1,0],data=df1)
+    sns.barplot(x='Default',y='Status',ax=axs[1,1,],data=df1)
     plt.show()
 
-descriptive_subplots(df)
 
+sub(df1)
 
-df = df.drop('Id',axis=1)
 
 
 X = df.drop('Default',axis=1)
-y = df[['Default']]
+y = df['Default']
+
 
 
 from sklearn.model_selection import train_test_split
-
-
 X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.20,random_state=42)
 
 
 from sklearn.preprocessing import OneHotEncoder
-from sklearn.impute import SimpleImputer
-from sklearn.compose import make_column_transformer
-
 
 ohe = OneHotEncoder()
+
+from sklearn.impute import SimpleImputer
 imp = SimpleImputer()
 
-
+from sklearn.compose import make_column_transformer
 
 ct = make_column_transformer(
     (ohe, X.select_dtypes(include='object').columns),
@@ -67,54 +71,63 @@ ct = make_column_transformer(
     remainder='passthrough')
 
 
-from sklearn.linear_model import LogisticRegression
-from sklearn.naive_bayes import GaussianNB
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import GradientBoostingClassifier
-
-
-lr = LogisticRegression()
-nb = GaussianNB()
-rfc = RandomForestClassifier()
-gbc = GradientBoostingClassifier()
+ct.fit_transform(X)
 
 
 from sklearn.pipeline import make_pipeline
 
+from sklearn.linear_model import LogisticRegression
+lr = LogisticRegression()
+
+from sklearn.ensemble import RandomForestClassifier,GradientBoostingClassifier,BaggingClassifier
+
+rfc = RandomForestClassifier()
+gbc = GradientBoostingClassifier()
+BC = BaggingClassifier()
 
 
-# Predictions
+from sklearn.tree import DecisionTreeClassifier
+tree = DecisionTreeClassifier()
 
+from sklearn.naive_bayes import GaussianNB
+nb = GaussianNB()
 
 from sklearn.metrics import roc_auc_score,roc_curve,accuracy_score,f1_score
 
-# results from models
-def evaluate_model(model,X_train,X_test,y_train,y_test):
+
+def model_metrics(model,X_train,X_test,y_train,y_test):
     pipe = make_pipeline(ct,model).fit(X_train,y_train)
     pred = pipe.predict(X_test)
-    pred_prob = pipe.predict_proba(X_test)[::,1]
-    acc = accuracy_score(y_test, pred)
-    f1 = f1_score(y_test, pred)
+    pred_prob = pipe.predict_proba(X_test)[:,1]
+    acc = accuracy_score(y_test,pred)
+    f1 = f1_score(y_test,pred)
     roc = roc_auc_score(y_test,pred_prob)
-    print(f'{model.__class__.__name__} - Accuracy: {acc * 100:.2f}%, ROC-AUC: {roc * 100:.2f}%; --F1--{f1*100:.2f}%')
+    print(f'{model.__class__.__name__}, --Accuracy-- {acc*100:.2f}%; --ROC-- {roc*100:.2f}%; --F1-- {f1*100:.2f}%')
     return pred,pred_prob
 
-lr_pred,lr_pred_prob = evaluate_model(lr, X_train, X_test, y_train, y_test)
-rfc_pred,rfc_pred_prob = evaluate_model(rfc, X_train, X_test, y_train, y_test)
-nb_pred,nb_pred_prob = evaluate_model(nb, X_train, X_test, y_train, y_test)
-gbc_pred,gbc_pred_prob = evaluate_model(gbc, X_train, X_test, y_train, y_test)
 
-# ROC Curves
-def roc_curve_plot(y_test,y_pred_prob, model):
-    fpr, tpr, _ = roc_curve(y_test,y_pred_prob)
+lr_pred,lr_pred_prob = model_metrics(lr, X_train, X_test, y_train, y_test)
+gbc_pred,gbc_pred_prob = model_metrics(gbc, X_train, X_test, y_train, y_test)
+rfc_pred,rfc_pred_prob = model_metrics(rfc, X_train, X_test, y_train, y_test)
+BC_pred,BC_pred_prob = model_metrics(BC, X_train, X_test, y_train, y_test)
+tree_pred,tree_pred_prob = model_metrics(tree, X_train, X_test, y_train, y_test)
+nb_pred,nb_pred_prob = model_metrics(nb, X_train, X_test, y_train, y_test)
+
+
+
+def ROC(y_test,y_pred_prob,model):
+    fpr,tpr, _ = roc_curve(y_test,y_pred_prob)
     plt.plot(fpr,tpr,label=model.__class__.__name__)
-    plt.title('ROC Curve')
-    plt.xlabel('False Positive Rate')
+    plt.xlabel('False Positive')
     plt.ylabel('True Positive Rate')
+    plt.title('ROC Curves')
 
-roc_curve_plot(y_test,lr_pred_prob,lr)
-roc_curve_plot(y_test,rfc_pred_prob,rfc)
-roc_curve_plot(y_test,nb_pred_prob,nb)
-roc_curve_plot(y_test,gbc_pred_prob,gbc)
+
+ROC(y_test,lr_pred_prob,lr)
+ROC(y_test,gbc_pred_prob,gbc)
+ROC(y_test,rfc_pred_prob,rfc)
+ROC(y_test,tree_pred_prob,tree)
+ROC(y_test,BC_pred_prob,BC)
+ROC(y_test,nb_pred_prob,nb)
 plt.legend()
 plt.show()
