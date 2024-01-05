@@ -133,14 +133,14 @@ pca_scaled = pca.fit_transform(scaled)
 from sklearn.cluster import KMeans
 
 cc = []
-for i in range(2,12):
+for i in range(2,22):
     kmeans = KMeans(n_clusters=i,init='k-means++',n_init=20,random_state=42).fit(pca_scaled)
     cc.append(kmeans.inertia_)
 
 
 #elbow method
 
-plt.plot(range(2,12),cc,marker='*')
+plt.plot(range(2,22),cc,marker='*')
 plt.xlabel('Clusters')
 plt.ylabel('inertia')
 plt.show()
@@ -148,7 +148,7 @@ plt.show()
 
 
 
-kmeans = KMeans(n_clusters=11,init='k-means++',n_init=20,random_state=42).fit(pca_scaled)
+kmeans = KMeans(n_clusters=13,init='k-means++',n_init=20,random_state=42).fit(pca_scaled)
 labels = kmeans.labels_
 features['clusters'] = labels
 
