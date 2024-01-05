@@ -35,15 +35,16 @@ sns.heatmap(df1.corr(), annot=True)
 plt.show()
 
 def sub(df1):
-    _,axs = plt.subplots(2,2,figsize=(10,5))
+    _,axs = plt.subplots(2,2,figsize=(10,6))
     sns.countplot(x='Default',ax=axs[0,0],data=df1)
-    sns.violinplot(x='Status',y='Default',ax=axs[0,1],data=df1)
+    sns.boxplot(x='Status',y='Rate',ax=axs[0,1],data=df1)
     sns.boxplot(x='Home',y='Income',ax=axs[1,0],data=df1)
     sns.barplot(x='Default',y='Status',ax=axs[1,1,],data=df1)
     plt.show()
 
 
 sub(df1)
+
 
 
 
