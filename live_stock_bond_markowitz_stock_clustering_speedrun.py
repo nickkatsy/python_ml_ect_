@@ -148,7 +148,7 @@ plt.show()
 
 
 
-kmeans = KMeans(n_clusters=8,init='k-means++',n_init=20,random_state=42).fit(pca_scaled)
+kmeans = KMeans(n_clusters=11,init='k-means++',n_init=20,random_state=42).fit(pca_scaled)
 labels = kmeans.labels_
 features['clusters'] = labels
 
