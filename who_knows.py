@@ -3,7 +3,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-df = pd.read_csv('C:/ML/python/data/data.csv',sep=';')
+df = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/data.csv',sep=';')
 df.info()
 df.columns = df.columns.str.replace(' ','_')
 print(df.dtypes)
