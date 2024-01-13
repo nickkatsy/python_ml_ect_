@@ -39,7 +39,7 @@ def plotss(df):
     _,axs = plt.subplots(3,3,figsize=(10,6))
     sns.barplot(x='Course',y='Application_mode',ax=axs[0,0],data=df)
     sns.boxplot(x='Target',y='Admission_grade',ax=axs[0,1],data=df)
-    sns.violinplot(x='Previous_qualification_(grade)',y='Target',ax=axs[0,2],data=df)
+    sns.lineplot(x='Target',y='Previous_qualification_(grade)',ax=axs[0,2],data=df)
     sns.boxplot(x='Course',y='Target',ax=axs[1,0],data=df)
     sns.boxplot(x='Curricular_units_2nd_sem_(enrolled)',y='Curricular_units_2nd_sem_(grade)',ax=axs[1,2],data=df)
     sns.violinplot(x='Target',y='Age_at_enrollment',ax=axs[1,1],data=df)
@@ -149,4 +149,3 @@ ROC_CURVES(y_test, BC_pred_prob, BC)
 ROC_CURVES(y_test, tree_pred_prob, tree)
 plt.legend()
 plt.show()
-
