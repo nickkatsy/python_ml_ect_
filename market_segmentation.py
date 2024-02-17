@@ -4,7 +4,7 @@ warnings.filterwarnings('ignore')
 
 
 
-df = pd.read_csv('C:/ML/python/data/PRODUCT_SALES.csv',delimiter=',')
+df = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/PRODUCT_SALES.csv')
 
 df.info()
 df.isna().sum()
