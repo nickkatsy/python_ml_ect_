@@ -48,6 +48,8 @@ subplots(df)
 
 
 
+
+
 X = df.drop('diagnosis',axis=1)
 y = df[['diagnosis']]
 
@@ -71,48 +73,44 @@ X_test_scaled = sc.transform(X_test)
 
 
 from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier,GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier,GradientBoostingClassifier,BaggingClassifier
 from sklearn.naive_bayes import GaussianNB
 
 
-clf = LogisticRegression().fit(X_train_scaled,y_train)
-pred_clf = clf.predict(X_test_scaled)
-pred_prob_clf = clf.predict_proba(X_test_scaled)[::,1]
+lr = LogisticRegression()
 
-
-tree = DecisionTreeClassifier().fit(X_train_scaled,y_train)
-tree_pred = tree.predict(X_test_scaled)
-tree_pred_prob = tree.predict_proba(X_test_scaled)[::,1]
-
-rfc = RandomForestClassifier().fit(X_train_scaled,y_train)
-rfc_pred = rfc.predict(X_test_scaled)
-rfc_pred_prob = rfc.predict_proba(X_test_scaled)[::,1]
-
-
-nb = GaussianNB().fit(X_train_scaled,y_train)
-nb_pred = nb.predict(X_test_scaled)
-nb_pred_prob = nb.predict_proba(X_test_scaled)[::,1]
-
-
-GBC = GradientBoostingClassifier().fit(X_train_scaled, y_train)
-GBC_pred = GBC.predict(X_test_scaled)
-GBC_pred_prob = GBC.predict_proba(X_test_scaled)[::,1]
+rfc = RandomForestClassifier()
+gbr = GradientBoostingClassifier()
+NB = GaussianNB()
+BC = BaggingClassifier()
 
 
 
 
 
-from sklearn.metrics import roc_auc_score,accuracy_score
 
 
-def evaluate_model(model_name,y_true,y_pred,y_pred_prob):
-    acc = accuracy_score(y_true, y_pred)
-    roc = roc_auc_score(y_true, y_pred_prob)
-    print(f'{model_name} - Accuracy: {acc * 100:.2f}%, ROC-AUC: {roc * 100:.2f}%')
 
-evaluate_model('Logistic Regression', y_test,pred_clf,pred_prob_clf)
-evaluate_model('Random Forest', y_test,rfc_pred,rfc_pred_prob)
-evaluate_model('Naive Bayes', y_test,nb_pred,nb_pred_prob)
-evaluate_model('Gradient Boosting',y_test,GBC_pred,GBC_pred_prob)
-evaluate_model('Decision Trees', y_test,tree_pred, tree_pred_prob)
+from sklearn.metrics import roc_auc_score,accuracy_score,confusion_matrix,f1_score
+
+
+
+def evaluate_model(X_train_scaled,X_test_scaled,y_train,y_test,model):
+    model = model.fit(X_train_scaled,y_train)
+    pred = model.predict(X_test_scaled)
+    pred_prob = model.predict_proba(X_test_scaled)[:,1]
+    acc = accuracy_score(y_test, pred)
+    f1 = f1_score(y_test, pred)
+    con = confusion_matrix(y_test, pred)
+    roc = roc_auc_score(y_test, pred_prob)
+    print(f'{model.__class__.__name__}, --ACC-- {acc*100:.2f}%; --ROC-- {roc*100:.2f}%; --f1-- {f1*100:.2f}%')
+    print('confusion matrix',con)
+    return pred,pred_prob
+
+
+lr_pred,lr_pred_prob = evaluate_model(X_train_scaled, X_test_scaled, y_train, y_test, lr)
+rfc_pred,rfc_pred_prob = evaluate_model(X_train_scaled, X_test_scaled, y_train, y_test, rfc)
+NB_pred,NB_pred_prob = evaluate_model(X_train_scaled, X_test_scaled, y_train, y_test, NB)
+BC_pred,BC_pred_prob = evaluate_model(X_train, X_test, y_train, y_test,BC)
+gbr_pred,gbr_pred_prob = evaluate_model(X_train_scaled, X_test_scaled, y_train, y_test,gbr)
+    
