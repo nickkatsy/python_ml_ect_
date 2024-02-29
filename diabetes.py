@@ -37,119 +37,107 @@ plt.figure(figsize=(12,4))
 sns.heatmap(df.corr(),annot=True)
 
 
-# descriptive statisics
-
-import statsmodels.api as sm
-
-y_endog = df['Outcome']
-X_exog = sm.add_constant(df.drop('Outcome', axis=1))
-
-full_model = sm.GLM(y_endog,X_exog,family=sm.families.Binomial()).fit()
-print(full_model.summary())
 
 
-coefficients = pd.DataFrame({'Feature': X_exog.columns,'Coefficient': full_model.params.values})
-print(coefficients)
+
+
 
 X = df.drop('Outcome',axis=1)
 y = df[['Outcome']]
 
 y.value_counts(normalize=True)
 
+from sklearn.model_selection import train_test_split
 
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.20,random_state=1)
 
 from sklearn.preprocessing import StandardScaler
 
 sc = StandardScaler()
 
-sc.fit_transform(X)
+X_train_scaled = sc.fit_transform(X_train)
+X_test_scaled = sc.transform(X_test)
+
 
 from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier,BaggingClassifier,GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import SVC
+svc = SVC(probability=True)
 
 
-clf = LogisticRegression().fit(X,y)
-clf_pred = clf.predict(X)
-clf_pred_prob = clf.predict_proba(X)[::,1]
 
-rfc = RandomForestClassifier().fit(X,y)
-rfc_pred = rfc.predict(X)
-rfc_pred_prob = rfc.predict_proba(X)[::,1]
+lr = LogisticRegression()
 
-Knn = KNeighborsClassifier(n_neighbors=6).fit(X,y)
-Knn_pred = Knn.predict(X)
-Knn_pred_prob = Knn.predict_proba(X)[::,1]
+rfc = RandomForestClassifier()
+Knn = KNeighborsClassifier(n_neighbors=7)
 
-nb = GaussianNB().fit(X,y)
-nb_pred = nb.predict(X)
-nb_pred_prob = nb.predict_proba(X)[::,1]
-
-gb = GradientBoostingClassifier().fit(X,y)
-gb_pred = gb.predict(X)
-gb_pred_prob = gb.predict_proba(X)[::,1]
+nb = GaussianNB()
+BC = BaggingClassifier()
+gbc = GradientBoostingClassifier()
 
 
-from sklearn.metrics import roc_auc_score,roc_curve,accuracy_score
+from sklearn.metrics import roc_auc_score,roc_curve,accuracy_score,f1_score,confusion_matrix
 from sklearn.model_selection import cross_val_score
 
-# Logistic Regression Results
-clf_acc = accuracy_score(y, clf_pred)
-print('Accuracy of Logistic Regression Model',clf_acc*100)
 
-clf_roc = roc_auc_score(y, clf_pred_prob)
-print('logistic Regression ROC: ',clf_roc*100)
+def evaluate_model(X_train_scaled,X_test_scaled,y_train,y_test,model):
+    model = model.fit(X_train_scaled,y_train)
+    pred = model.predict(X_test_scaled)
+    pred_prob = model.predict_proba(X_test_scaled)[:,1]
+    acc = accuracy_score(y_test, pred)
+    f1 = f1_score(y_test, pred)
+    con = confusion_matrix(y_test, pred)
+    roc = roc_auc_score(y_test, pred_prob)
+    print(f'{model.__class__.__name__}, --ACC-- {acc*100:.2f}%; --ROC-- {roc*100:.2f}%; --f1-- {f1*100:.2f}%')
+    print('confusion matrix',con)
+    return pred,pred_prob
 
-#Logistic Regression Model produces a higher roc with 10 fold cross-validation
-cv_clf = cross_val_score(clf, X,y,cv=10,scoring='roc_auc').max()
-print('Logistic Regression ROC with Cross-Validation',cv_clf*100)
+
+lr_pred,lr_pred_prob = evaluate_model(X_train_scaled, X_test_scaled, y_train, y_test, lr)
+rfc_pred,rfc_pred_prob = evaluate_model(X_train_scaled, X_test_scaled, y_train, y_test, rfc)
+nb_pred,nb_pred_prob = evaluate_model(X_train_scaled, X_test_scaled, y_train, y_test, nb)
+BC_pred,BC_pred_prob = evaluate_model(X_train, X_test, y_train, y_test,BC)
+gbc_pred,gbc_pred_prob = evaluate_model(X_train_scaled, X_test_scaled, y_train, y_test,gbc)
+Knn_pred,Knn_pred_prob = evaluate_model(X_train_scaled, X_test_scaled, y_train, y_test,Knn)
+svc_pred,svc_pred_prob = evaluate_model(X_train_scaled, X_test_scaled, y_train, y_test, svc)
 
 
-#Random Forest Classification Results
-
-acc_rfc = accuracy_score(y,rfc_pred)
-print('accuracy score Random Forest Classification',acc_rfc*100)
-
-roc_rfc = roc_auc_score(y,rfc_pred_prob)
-print('roc using Random Forest Classification= ',roc_rfc)
-
-# KNN Classification Results
-
-acc_knn = accuracy_score(y, Knn_pred)
-print('accuarcy score using knn= ',acc_knn*100)
-
-roc_knn = roc_auc_score(y, Knn_pred_prob)
-print('roc using knn',roc_auc_score(y, Knn_pred_prob)*100)
-
-# Results from Naive Bayes Classification
-
-acc_nb = accuracy_score(y, nb_pred)
-print(f'the Accuracy of the Naive Bayes Classifier: {acc_nb}')
-
-roc_nb = roc_auc_score(y,nb_pred_prob)
-print(f'the roc/auc score from the Naive Bayes Classifier: {roc_nb}')
-
-acc_gb = accuracy_score(y, gb_pred)
-print(f'the accuracy using Gradient boost classifier: {acc_gb}')
-
-roc_gb = roc_auc_score(y,gb_pred_prob)
-print(f'the roc_auc score using Gradient Boost classifier: {roc_gb}')
-
-# ROC Curves plotted
-def roc_curve_plot(y, y_pred_prob,model_name):
-    fpr, tpr, _ = roc_curve(y, y_pred_prob)
-    plt.plot(fpr,tpr,label=model_name)
-    plt.title('ROC Curve')
+def ROC_Curve(y_test,y_pred_prob,model):
+    fpr,tpr, _ = roc_curve(y_test, y_pred_prob)
+    plt.plot(fpr,tpr,label=model.__class__.__name__)
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
 
-    
-    
-roc_curve_plot(y,clf_pred_prob,'Logistic Regression')
-roc_curve_plot(y,rfc_pred_prob,'Random Forest')
-roc_curve_plot(y,nb_pred_prob,'Naive Bayes')
-roc_curve_plot(y,gb_pred_prob,'Gradient Boosting')
+
+
+ROC_Curve(y_test,lr_pred_prob,lr)
+ROC_Curve(y_test,rfc_pred_prob,rfc)
+ROC_Curve(y_test,gbc_pred_prob,gbc)
+ROC_Curve(y_test,nb_pred_prob,nb)
+ROC_Curve(y_test, Knn_pred_prob,Knn)
+ROC_Curve(y_test,BC_pred_prob,BC)
+ROC_Curve(y_test, svc_pred_prob, svc)
 plt.legend()
 plt.show()
+
+
+
+#Cross-validation
+
+def cross_validation(model,X,y):
+    model = model.fit(X_train_scaled,y_train)
+    cv_score = cross_val_score(model, X,y,cv=10,scoring='roc_auc').max()
+    print(f'{model.__class__.__name__}, --10-fold Cross-Validation Score-- {cv_score*100:.2f}%')
+    return cv_score
+    
+
+
+lr_score = cross_validation(lr, X, y)
+gbc_score = cross_validation(gbc,X,y)
+rfc_score = cross_validation(rfc, X, y)
+nb_score = cross_validation(nb, X, y)
+knn_score = cross_validation(Knn, X, y)
+BC_score = cross_validation(BC,X,y)
+svc_score = cross_validation(svc, X, y)
