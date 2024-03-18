@@ -12,7 +12,7 @@ def get_lines_by_character(character_name, data):
     lines_spoken = data[data['name'] == character_name]['line']
     return lines_spoken
 
-data = pd.read_csv('C:/ML/python/data/arbiter.csv', delimiter=',')
+data = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/arbiter.csv')
 
 data['line'] = data['line'].str.lower()
 data['line'] = data['line'].str.replace('[^\w\s]', '')
@@ -45,4 +45,5 @@ unique_characters = data['name'].unique()
 for character in unique_characters:
     lines_spoken = get_lines_by_character(character, data)
     print(f"Lines spoken by {character}:")
+    print(lines_spoken)
     print(lines_spoken)
