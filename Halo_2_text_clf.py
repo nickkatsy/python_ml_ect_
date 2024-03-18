@@ -46,4 +46,3 @@ for character in unique_characters:
     lines_spoken = get_lines_by_character(character, data)
     print(f"Lines spoken by {character}:")
     print(lines_spoken)
-    print(lines_spoken)
