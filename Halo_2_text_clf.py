@@ -27,18 +27,31 @@ X_train_tfidf = tfidf_vectorizer.fit_transform(X_train)
 X_test_tfidf = tfidf_vectorizer.transform(X_test)
 
 
-model = MultinomialNB()
-model.fit(X_train_tfidf, y_train)
+from sklearn.ensemble import GradientBoostingClassifier
+GBC = GradientBoostingClassifier()
+from sklearn.svm import SVC
+
+GBC = GradientBoostingClassifier()
+MNM = MultinomialNB()
+svc = SVC(probability=True)
+
+def evaluate(X_train_tfidf, X_test_tfidf, y_train, y_test, model):
+    model = model.fit(X_train_tfidf, y_train)
+    pred = model.predict(X_test_tfidf)
+    clf_report = classification_report(y_test, pred)
+    acc = accuracy_score(y_test, pred)
+    print(f'{model.__class__.__name__}, --Classification Report--\n{clf_report}')
+    print(f'{model.__class__.__name__}, --Accuracy-- {acc*100:.2f}%')
+    return pred
+
+GBC_pred = evaluate(X_train_tfidf, X_test_tfidf, y_train, y_test, GBC)
+MNM_pred = evaluate(X_train_tfidf, X_test_tfidf, y_train, y_test, MNM)
+svc_pred = evaluate(X_train_tfidf, X_test_tfidf, y_train, y_test, svc)
 
 
-y_pred = model.predict(X_test_tfidf)
 
 
-accuracy = accuracy_score(y_test, y_pred)
-print(f'Accuracy: {accuracy}')
 
-
-print(classification_report(y_test, y_pred))
 
 
 unique_characters = data['name'].unique()
