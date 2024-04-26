@@ -3,7 +3,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-df = pd.read_csv('C:/ML/python/data/shopping_trends.csv',delimiter=',')
+df = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/shopping_trends.csv')
 
 
 df.info()
