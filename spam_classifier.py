@@ -3,7 +3,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import warnings
 warnings.filterwarnings('ignore')
 
-df = pd.read_csv('C:/ML/python/data/Spam Email raw text for NLP.csv',delimiter=',')
+df = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/Spam%20Email%20raw%20text%20for%20NLP.csv')
 
 df.info()
 
@@ -50,6 +50,7 @@ acc_gbc = accuracy_score(y_test,GBC_pred)
 print(f'accuracy using Gradient Boosting Classifier: {acc_gbc*100:.2f}%')
 clfrpt_gbc = classification_report(y_test, GBC_pred)
 print('clf report using gradient boosting clf',clfrpt_gbc)
+
 
 
 
