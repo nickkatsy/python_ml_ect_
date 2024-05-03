@@ -4,7 +4,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import warnings
 warnings.filterwarnings('ignore')
 
-df = pd.read_csv('C:/ML/python/data/animequotes.csv', delimiter=',')
+df = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/AnimeQuotes.csv')
 
 
 df['Character'] = df['Character'].str.lower().str.replace('\W', ' ')
@@ -66,9 +66,3 @@ for character in unique_characters:
 eren_quotes = get_lines_by_character('eren', df)
 for quote in eren_quotes:
     print(quote)
-
-
-
-
-
-
