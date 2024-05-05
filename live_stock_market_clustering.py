@@ -48,7 +48,7 @@ plt.title('Elbow Method')
 plt.show()
 
 
-#optimal numver of cluster is at 9
+#optimal numver of cluster is at 8
 
 k = 8
 
