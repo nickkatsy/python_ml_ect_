@@ -23,9 +23,9 @@ import matplotlib.pyplot as plt
 def basic_subplots(df):
   _,axs = plt.subplots(2,2,figsize=(12,6))
   sns.scatterplot(df,x='income',y='house_price',ax=axs[0,0])
-  sns.kdeplot(df,x='in_cali',ax=axs[0,1])
-  sns.violinplot(df['income'],ax=axs[1,0])
-  sns.distplot(df['earthquake'],ax=axs[1,1])
+  sns.lineplot(df,x='in_cali',y='income',ax=axs[0,1])
+  sns.lineplot(x=df['earthquake'],y=df['in_cali'],ax=axs[1,0])
+  sns.barplot(x=df['earthquake'],y=df['income'],ax=axs[1,1])
   plt.show()
 
 
@@ -35,6 +35,7 @@ basic_subplots(df)
 
 X = df.drop('in_cali',axis=1)
 y = df[['in_cali']]
+
 
 
 from sklearn.model_selection import train_test_split
@@ -59,8 +60,9 @@ lr = LogisticRegression()
 
 from sklearn.naive_bayes import GaussianNB
 
-nb = GaussianNB()
-
+nb = GaussianNB().fit(X_train_scaled,y_train)
+nb_pred = nb.predict(X_test)
+nb_pred_prob = nb.predict_proba(X_test_scaled)[:,1]
 
 from sklearn.ensemble import GradientBoostingClassifier,RandomForestClassifier,BaggingClassifier
 
@@ -90,25 +92,29 @@ def evaluate_model(model,X_train_scaled,X_test_scaled,y_train,y_test):
 
 
 lr_pred,lr_pred_prob = evaluate_model(lr, X_train_scaled, X_test_scaled, y_train, y_test)
-nb_pred,nb_pred_prob = evaluate_model(nb, X_train_scaled, X_test_scaled, y_train, y_test)
 gbc_pred,gbc_pred_prob = evaluate_model(gbc, X_train_scaled, X_test_scaled, y_train, y_test)
 rfc_pred,rfc_pred_prob = evaluate_model(rfc, X_train_scaled, X_test_scaled, y_train, y_test)
 BC_pred,BC_pred_prob = evaluate_model(BC, X_train_scaled, X_test_scaled, y_train, y_test)
+
+# for Naive Bayes Gausian
+acc_NB = accuracy_score(y_test,nb_pred)
+roc_NB = roc_auc_score(y_test, nb_pred_prob)
+print(f'accuracy Gausian Naive Bayes: {acc_NB*100:.2f}%')
+print(f'roc_auc score using Gausian Naive Bayes: {roc_NB*100:.2f}%')
 
 
 # cross-val scores
 from sklearn.model_selection import cross_val_score
 
 
-def cross_validation(model,X_train_scaled,y_train):
-    cv_scores = cross_val_score(model, X_train_scaled,y_train, cv=5,scoring='roc_auc').mean()
+def cross_validation(model,X,y):
+    cv_scores = cross_val_score(model, X,y, cv=5,scoring='roc_auc').max()
     print(f'{model.__class__.__name__}, --ROC_AUC Score 5-fold Cross Valiation-- {cv_scores*100:.2f}%')
     return cv_scores
 
 
-lr_scores = cross_validation(lr, X_train_scaled, y_train)
-nb_scores = cross_validation(nb, X_train_scaled, y_train)
-gbc_scores = cross_validation(gbc, X_train_scaled, y_train)
-rfc_scores = cross_validation(rfc, X_train_scaled, y_train)
-BC_scores = cross_validation(BC, X_train_scaled, y_train)
+lr_scores = cross_validation(lr, X, y)
+gbc_scores = cross_validation(gbc, X, y)
+rfc_scores = cross_validation(rfc, X, y)
+BC_scores = cross_validation(BC, X, y)
 
