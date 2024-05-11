@@ -2,7 +2,7 @@ import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
 
-df = pd.read_csv('C:/ML/python/data/space_train.csv',delimiter=',')
+df = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/Dataset_Speedruns/main/space_train.csv')
 
 df.isna().sum()
 df.nunique()
@@ -42,13 +42,12 @@ def stuff(df1):
     f,axs = plt.subplots(2,2,figsize=(10,6))
     sns.barplot(x='HomePlanet',y='Destination',ax=axs[0,0],data=df1)
     sns.boxplot(x='VIP',y='Destination',ax=axs[0,1],data=df1)
-    sns.boxplot(x='CryoSleep',y='Destination',ax=axs[1,0],data=df1)
+    sns.barplot(x='CryoSleep',y='VIP',ax=axs[1,0],data=df1)
     sns.barplot(x='VIP',y='Transported',ax=axs[1,1],data=df1)
     plt.show()
     
     
 stuff(df1)
-
 
 
 
