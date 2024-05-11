@@ -2,7 +2,7 @@ import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
 
-df = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/Dataset_Speedruns/main/space_train.csv')
+df = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/space_train.csv')
 
 df.isna().sum()
 df.nunique()
