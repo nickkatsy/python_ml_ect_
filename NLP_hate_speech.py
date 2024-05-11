@@ -4,7 +4,7 @@ warnings.filterwarnings('ignore')
 
 
 
-df = pd.read_csv('C:/ML/python/data/cyberbullying_tweets.csv',delimiter=',')
+df = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/cyberbullying_tweets.csv')
 df.info()
 
 df['tweet_text'] = df['tweet_text'].str.lower()
