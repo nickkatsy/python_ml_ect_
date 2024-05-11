@@ -39,7 +39,7 @@ def evaluate_model(X_train,X_test,y_train,y_test,model):
     pred = model.predict(X_tfidf_test)
     acc = accuracy_score(y_test,pred)
     clf_report = classification_report(y_test,pred)
-    print(f'{model.__class__.__name__}, -- Classification Report -- {clf_report} Accuracy {acc*100:.2f}%')
+    print(f'{model.__class__.__name__}, -- Classification Report -- {clf_report}, -Accuracy- {acc*100:.2f}%')
     return pred
 
 
@@ -60,9 +60,3 @@ for character in unique_characters:
     print(f'{character}:')
     lines_spoken = get_lines_by_character(character, df)
     print(lines_spoken)
-
-
-#Yeager is the ultimate
-eren_quotes = get_lines_by_character('eren', df)
-for quote in eren_quotes:
-    print(quote)
