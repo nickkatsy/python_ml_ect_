@@ -62,6 +62,9 @@ X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.20,random_state=
 
 from sklearn.preprocessing import OneHotEncoder
 ohe = OneHotEncoder(sparse_output=False)
+
+
+
 from sklearn.impute import SimpleImputer
 
 imp = SimpleImputer()
@@ -97,7 +100,7 @@ from sklearn.neighbors import KNeighborsClassifier
 knn = KNeighborsClassifier(n_neighbors=7)
 
 
-from sklearn.metrics import roc_auc_score,roc_curve,accuracy_score,confusion_matrix
+from sklearn.metrics import roc_auc_score,roc_curve,accuracy_score,confusion_matrix,f1_score
 
 def ecv(X_train,X_test,y_train,y_test,model):
     pipe = make_pipeline(ct,model).fit(X_train,y_train)
@@ -106,7 +109,9 @@ def ecv(X_train,X_test,y_train,y_test,model):
     acc = accuracy_score(y_test, pred)
     roc = roc_auc_score(y_test, pred_prob)
     con = confusion_matrix(y_test, pred)
+    f1 = f1_score(y_test,pred)
     print('confusion matrix',con)
+    print('f1 score',round(f1*100))
     print(f'{model.__class__.__name__}, --ACC-- {acc*100:.2f}%; -ROC- {roc*100:.2f}%')
     return pred,pred_prob
 
@@ -122,6 +127,9 @@ Tree_pred,Tree_pred_prob = ecv(X_train, X_test, y_train, y_test, Tree)
 def ROC(y_test,y_pred_prob,model):
     fpr,tpr, _ = roc_curve(y_test,y_pred_prob)
     plt.plot(fpr,tpr,label=model.__class__.__name__)
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('ROC Curves')
 
 
 ROC(y_test,BC_pred_prob,BC)
@@ -133,6 +141,5 @@ ROC(y_test,lda_pred_prob,lda)
 ROC(y_test,knn_pred_prob,knn)
 plt.legend()
 plt.show()
-
 
 
