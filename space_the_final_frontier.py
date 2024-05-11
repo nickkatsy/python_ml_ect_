@@ -129,9 +129,10 @@ ROC(y_test,GBC_pred_prob,GBC)
 ROC(y_test,RFC_pred_prob,RFC)
 ROC(y_test,lr_pred_prob,lr)
 ROC(y_test,Tree_pred_prob,Tree)
+ROC(y_test,lda_pred_prob,lda)
+ROC(y_test,knn_pred_prob,knn)
 plt.legend()
 plt.show()
-
 
 
 
