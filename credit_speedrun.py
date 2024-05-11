@@ -21,6 +21,13 @@ import matplotlib.pyplot as plt
 
 df1 = df.copy()
 
+from sklearn.preprocessing import LabelEncoder
+
+le = LabelEncoder()
+
+for i in df1:
+    df1[i] = le.fit_transform(df1[i])
+
 plt.figure(figsize=(12,6))
 sns.heatmap(df1.corr(), annot=True)
 
@@ -28,16 +35,15 @@ sns.heatmap(df1.corr(), annot=True)
 
 def sub(df1):
     plt_,axs = plt.subplots(2,2,figsize=(10,6))
-    sns.kdeplot(x='duration',y='age',ax=axs[0,0],data=df1,hue='Default')
-    sns.countplot(x='Default',ax=axs[0,1],data=df1,hue='job')
-    sns.barplot(x='Default',y='age',ax=axs[1,0],hue='status',data=df1)
-    sns.barplot(x='job',y='Default',ax=axs[1,1],data=df1)
+    sns.lineplot(x='duration',y='age',ax=axs[0,0],data=df1,hue='Default')
+    sns.countplot(x='Default',ax=axs[0,1],data=df1)
+    sns.barplot(x='savings',y='Default',ax=axs[1,0],data=df1)
+    sns.barplot(x='foreign',y='Default',ax=axs[1,1],data=df1)
     plt.show()
     
 
 
 sub(df1)
-
 
 
 X = df.drop('Default',axis=1)
