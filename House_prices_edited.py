@@ -69,16 +69,16 @@ def box(copy):
 box(copy)
 
 
-def violin(copy):
+def subs(copy):
     dis_,axs__ = plt.subplots(2,2,figsize=(10,6))
-    sns.violinplot(copy[['bedrooms']],ax=axs__[0,0])
-    sns.violinplot(copy[['stories']],ax=axs__[0,1])
-    sns.violinplot(copy[['bathrooms']],ax=axs__[1,0])
-    sns.violinplot(copy[['basement']],ax=axs__[1,1])
+    sns.barplot(x='bedrooms',y='price',ax=axs__[0,0],data=copy)
+    sns.boxplot(x='stories',y='price',ax=axs__[0,1],data=copy)
+    sns.barplot(x='mainroad',y='price',ax=axs__[1,0],data=copy)
+    sns.scatterplot(x='area',y='price',ax=axs__[1,1],data=copy)
     plt.show()
     
 
-violin(copy)
+subs(copy)
 
 
 
@@ -91,49 +91,44 @@ X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.20,random_state=
 
 
 
-from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor,GradientBoostingRegressor
+from sklearn.linear_model import LinearRegression,Lasso,Ridge
+from sklearn.ensemble import RandomForestRegressor,GradientBoostingRegressor,BaggingRegressor
 from sklearn.tree import DecisionTreeRegressor
 
-
+ridge = Ridge(alpha=.7)
+lasso = Lasso(alpha=.8)
 
 
 lr = LinearRegression()
-rf = RandomForestRegressor()
-dt = DecisionTreeRegressor()
-gb = GradientBoostingRegressor()
+RFR = RandomForestRegressor()
+Tree = DecisionTreeRegressor()
+GBR = GradientBoostingRegressor()
+BR = BaggingRegressor()
 
 
+from sklearn.preprocessing import OneHotEncoder,MinMaxScaler
+ms = MinMaxScaler()
 
-from sklearn.preprocessing import OneHotEncoder
 
-from sklearn.compose import make_column_transformer
 
 ohe = OneHotEncoder()
 
+
+
+
+
+from sklearn.compose import make_column_transformer
+
+
 ct = make_column_transformer(
-    (ohe,['mainroad','guestroom','basement','hotwaterheating','airconditioning','prefarea','furnishingstatus']
-     ),remainder='passthrough')
-
-
+    (ohe,X.select_dtypes(include='object').columns),
+     (ms,X.select_dtypes(include=['float64','int64']).columns),remainder='passthrough')
 
 ct.fit_transform(X)
 
 
 from sklearn.pipeline import make_pipeline
 
-pipe_lr = make_pipeline(ct,lr).fit(X_train,y_train)
-pred_lr = pipe_lr.predict(X_test)
-
-pipe_rf = make_pipeline(ct,rf).fit(X_train,y_train)
-pred_rf = pipe_rf.predict(X_test)
-
-pipe_tree = make_pipeline(ct,dt).fit(X_train,y_train)
-tree_pred = pipe_tree.predict(X_test)
-
-
-pipe_gb = make_pipeline(ct,gb).fit(X_train,y_train)
-gb_pred = pipe_gb.predict(X_test)
 
 
 
@@ -141,14 +136,18 @@ gb_pred = pipe_gb.predict(X_test)
 
 from sklearn.metrics import r2_score,mean_squared_error
 
-def evaluate_model(model_name,y_true,y_pred):
-    r2 = r2_score(y_true,y_pred)
-    mse = mean_squared_error(y_true,y_pred)
-    print(f'{model_name} - R-squared: {r2:.2f}, MSE: {mse:.2f}')
-    
-    
+def evaluate_model(X_train,X_test,y_train,y_test,model):
+    pipe = make_pipeline(ct,model).fit(X_train,y_train)
+    pred = pipe.predict(X_test)
+    mse = mean_squared_error(y_test,pred)
+    r2 = r2_score(y_test,pred)
+    print(f'{model.__class__.__name__}, --r2-- {r2*100:.2f}%; --mse-- {mse:.2f}')
+    return pred
 
-evaluate_model('Linear Regression', y_test,pred_lr)
-evaluate_model('Random Forest', y_test,pred_rf)
-evaluate_model('Decision Trees', y_test,tree_pred)
-evaluate_model('Gradient Boosting', y_test,gb_pred)
+lr_pred = evaluate_model(X_train, X_test, y_train, y_test, lr)
+GBR_pred = evaluate_model(X_train, X_test, y_train, y_test, GBR)
+RFR_pred = evaluate_model(X_train, X_test, y_train, y_test, RFR)
+Tree_pred = evaluate_model(X_train, X_test, y_train, y_test, Tree)
+lasso_pred = evaluate_model(X_train, X_test, y_train, y_test, lasso)
+ridge_pred = evaluate_model(X_train, X_test, y_train, y_test, ridge)
+BR_pred = evaluate_model(X_train, X_test, y_train, y_test, BR)
