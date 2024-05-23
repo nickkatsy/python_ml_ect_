@@ -36,7 +36,7 @@ plt.show()
 def desc(df1):
     _,axs = plt.subplots(2,2,figsize=(10,6))
     sns.barplot(x='Category',y='Purchase_Amount_(USD)',ax=axs[0,0],data=df1)
-    sns.lineplot(x='Age',y='Item_Purchased',ax=axs[0,1],data=df1)
+    sns.lineplot(x='Item_Purchased',y='Shipping_Type',ax=axs[0,1],data=df1)
     sns.lineplot(x='Purchase_Amount_(USD)',y='Age',ax=axs[1,0],data=df1)
     sns.barplot(x='Season',y='Discount_Applied',ax=axs[1,1],data=df1)
     plt.show()
@@ -117,6 +117,21 @@ ROC(y_test,RFC_pred_prob,RFC)
 ROC(y_test,BC_pred_prob,BC)
 plt.legend()
 plt.show()
+
+
+from sklearn.model_selection import cross_val_score
+
+def cross_val(X,y,model):
+    pipe = make_pipeline(ct,model).fit(X,y)
+    cv_scores = cross_val_score(pipe, X,y,cv=10,scoring='roc_auc').mean()
+    print(f'{model.__class__.__name__}, --Results from 10-fold cross-validation-- {cv_scores*100:.2f}%')
+    return cv_scores
+
+
+lr_scores = cross_val(X, y, lr)
+GBC_scores = cross_val(X,y,GBC)
+RFC_scores = cross_val(X,y,RFC)
+BC_scores = cross_val(X, y,BC)
 
 
 
