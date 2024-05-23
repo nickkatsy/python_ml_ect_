@@ -3,7 +3,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-df = pd.read_csv('C:/ML/python/data/housing.csv',delimiter=',')
+df = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/Housing.csv')
 
 df.info()
 df.dtypes
@@ -59,7 +59,7 @@ X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.20,random_state=
 
 from sklearn.preprocessing import PolynomialFeatures
 
-poly = PolynomialFeatures(degree=2)
+poly = PolynomialFeatures(degree=3)
 
 X_train_scaled = poly.fit_transform(X_train)
 X_test_scaled = poly.transform(X_test)
