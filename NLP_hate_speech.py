@@ -1,56 +1,77 @@
 import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
+import nltk
+from sklearn.feature_extraction.text import CountVectorizer
+import re
+from nltk.corpus import stopwords
 
 
+nltk.download('punkt')
 
 df = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/cyberbullying_tweets.csv')
 df.info()
 
-df['tweet_text'] = df['tweet_text'].str.lower()
-df['tweet_text'] = df['tweet_text'].str.replace('W', '')
+
+df['tweet_text'] = df['tweet_text'].apply(lambda x: x.lower())
 
 
 
+punctuation_signs = list("?:!.,;")
+df['tweet_text'] = df['tweet_text']
+
+for punct_sign in punctuation_signs:   
+    df['tweet_text'] = df['tweet_text'].str.replace(punct_sign, '')
+
+df['tweet_text'] = df['tweet_text'].apply(lambda x: re.sub(r'[^\w\s]', '', x))
+
+print(df['tweet_text'])
+
+df['tweet_text'] = df['tweet_text'].apply(lambda x: x.replace('\n', ' '))
+df['tweet_text'] = df['tweet_text'].apply(lambda x: x.replace('\t', ' '))
+df['tweet_text'] = df['tweet_text'].str.replace("    ", " ")
+df['tweet_text'] = df['tweet_text'].str.replace('"', '')
 
 
-from sklearn.feature_extraction.text import TfidfVectorizer
+nltk.download('stopwords')
+stop_words = list(stopwords.words('english'))
+for stop_word in stop_words:
+    regex_stopword = r"\b" + stop_word + r"\b"
+    df['tweet_text'] = df['tweet_text'].str.replace(regex_stopword, '')
 
-tfid = TfidfVectorizer()
 
-X = df['tweet_text']
+cv = CountVectorizer(max_features = 75)
+X = cv.fit_transform(df['tweet_text']).toarray()
 y = df['cyberbullying_type']
 
+
+
+
 from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, stratify=y, random_state = 42)
 
-X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.20,random_state=42)
+from sklearn.ensemble import RandomForestClassifier,GradientBoostingClassifier
+RFC = RandomForestClassifier()
+GBC = GradientBoostingClassifier()
 
-X_train = tfid.fit_transform(X_train)
-X_test = tfid.transform(X_test)
 
-from sklearn.linear_model import LogisticRegression
-lr = LogisticRegression()
 
 from sklearn.tree import DecisionTreeClassifier
-
 tree = DecisionTreeClassifier()
 
-from sklearn.naive_bayes import MultinomialNB
-MNB = MultinomialNB()
+from sklearn.metrics import accuracy_score,confusion_matrix,classification_report
 
-from sklearn.metrics import accuracy_score,classification_report
-
-
-def evaluate_model(X_train,X_test,y_train,y_test,model):
+def evaluate(X_train,X_test,y_train,y_test,model):
     model = model.fit(X_train,y_train)
     pred = model.predict(X_test)
     acc = accuracy_score(y_test,pred)
-    clf_rpt = classification_report(y_test,pred)
-    print(f'{model.__class__.__name__}, -Accuracy- {acc*100:.2f}%; --clf_rpt-- {clf_rpt}')
+    con = confusion_matrix(y_test,pred)
+    clf_rpt = classification_report(y_test, pred)
+    print('confusion matrix',con)
+    print(f'{model.__class__.__name__}, --Accuracy-- {acc*100:.2f}%; --Classification Report-- {clf_rpt}')
     return pred
 
-
-tree_pred = evaluate_model(X_train, X_test, y_train, y_test, tree)
-lr_pred = evaluate_model(X_train, X_test, y_train, y_test, lr)
-MNB_pred = evaluate_model(X_train, X_test, y_train, y_test, MNB)
+RFC_pred = evaluate(X_train, X_test, y_train, y_test,RFC)
+GBC_pred = evaluate(X_train, X_test, y_train, y_test, GBC)
+tree_pred = evaluate(X_train, X_test, y_train, y_test, tree)
 
