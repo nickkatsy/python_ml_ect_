@@ -4,7 +4,7 @@ warnings.filterwarnings('ignore')
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-df = pd.read_csv('C:/ML/python/data/animequotes.csv',delimiter=',')
+df = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/AnimeQuotes.csv')
 
 
 nltk.download('punkt')
