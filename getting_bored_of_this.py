@@ -2,7 +2,7 @@ import pandas as pd
 import warnings
 warnings.filterwarnings('ignore')
 
-df = pd.read_csv('C:/ML/python/data/train.csv',delimiter=',')
+df = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/Train.csv')
 
 df.info()
 
@@ -131,6 +131,7 @@ ROC(y_test,lr_pred_prob,lr)
 ROC(y_test,GBC_pred_prob,GBC)
 ROC(y_test,RFC_pred_prob,RFC)
 ROC(y_test,tree_pred_prob,tree)
+ROC(y_test,lda_pred_prob,lda)
 plt.legend()
 plt.show()
 
@@ -153,6 +154,7 @@ GBC_scores = cv_val(X,y,GBC)
 tree_scores = cv_val(X, y, tree)
 RFC_scores = cv_val(X, y,RFC)
 lda_scores = cv_val(X, y, lda)
+
 
 
 
