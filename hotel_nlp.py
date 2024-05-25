@@ -11,8 +11,8 @@ nltk.download('punkt')
 df.info()
 df = df.drop('Unnamed: 0',axis=1)
 
-df['content'] = df['content'].apply(lambda x: x.lower())
-df['translated_content'] = df['translated_content'].apply(lambda x: x.lower())
+df['content'] = df['content'].str.lower()
+df['translated_content'] = df['translated_content'].str.lower()
 
 
 import re
