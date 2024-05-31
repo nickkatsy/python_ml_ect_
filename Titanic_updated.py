@@ -1,5 +1,6 @@
 import pandas as pd
-
+import warnings
+warnings.filterwarnings('ignore')
 
 df = pd.read_csv('http://bit.ly/kaggletrain')
 
@@ -196,9 +197,7 @@ def __main__():
 
 
 if "__name__" == __main__():
-    print(__main__)
-
-
+    __main__
 
 
 
