@@ -13,7 +13,7 @@ bonds = ['BND','HYG','TIP','IEF','LQD']
 
 
 start_date = '2023-01-05'
-end_date = '2024-01-05'
+end_date = '2024-05-30'
 
 # import stocks and bonds from yfinance
 stocks_df = yf.download(tickers=stocks,start=start_date,end=end_date)['Adj Close']
@@ -200,14 +200,15 @@ plt.title('The Elbow Method')
 plt.show()
 
 
-#optimal number of clusters is at k = 13
+#optimal number of clusters is at k = 15
 
-kmeans = KMeans(n_clusters=13,init='k-means++',n_init=10,random_state=42).fit(X_scaled)
+kmeans = KMeans(n_clusters=15,init='k-means++',n_init=10,random_state=42).fit(X_scaled)
 labels = kmeans.fit_predict(X_scaled)
-X['Cluster'] = labels
+X['Cluster 1'] = labels
+X['Cluster 2'] = labels
 
-
-plt.scatter(X_scaled[:,0],X_scaled[:,1],c=X['Cluster'],s=300,marker='x',edgecolors='r')
+plt.scatter(X_scaled[:,0],X_scaled[:,1],c=X['Cluster 1'],s=300,marker='x',edgecolors='r')
+plt.scatter(X_scaled[:,0],X_scaled[:,1],c=X['Cluster 2'],s=300,marker='*',edgecolors='m')
 plt.scatter(kmeans.cluster_centers_[:,0],kmeans.cluster_centers_[:,1],marker='o',color='m')
 plt.show()
 
