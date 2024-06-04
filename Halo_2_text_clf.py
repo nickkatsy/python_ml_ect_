@@ -1,86 +1,120 @@
+from nltk.corpus import stopwords
 import pandas as pd
+import spacy
+import re
+import string
 import warnings
 warnings.filterwarnings('ignore')
-import nltk
-from sklearn.feature_extraction.text import CountVectorizer
-import re
-from nltk.corpus import stopwords
+from sklearn.preprocessing import LabelEncoder
 
 
-nltk.download('punkt')
 
 
-df = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/arbiter.csv')
-
-df['name'] = df['name'].apply(lambda x: x.lower())
-df['line'] = df['line'].apply(lambda x: x.lower())
-
-punctuation_signs = list("?:!.,;")
-df['line'] = df['line']
-
-for punct_sign in punctuation_signs:   
-    df['line'] = df['line'].str.replace(punct_sign, '')
+df = pd.read_csv('C:/ML/python/data/arbiter.csv',delimiter=',')
 
 
-df['line'] = df['line'].apply(lambda x: re.sub(r'[^\w\s]', '', x))
+df['line'] = df['line'].str.lower()
+df['name'] = df['name'].str.lower()
 
+
+
+
+def remove_html_tags(text):
+    pattern = r'[^a-zA-Z0-9\s]'
+    text = re.sub(pattern,'',text)
+    return text
+
+df['line'] = df['line'].apply(remove_html_tags)
 print(df['line'])
+print(df['name'])
 
 
-df['line'] = df['line'].apply(lambda x: x.replace('\n', ' '))
-df['line'] = df['line'].apply(lambda x: x.replace('\t', ' '))
-df['line'] = df['line'].str.replace("    ", " ")
-df['line'] = df['line'].str.replace('"', '')
+#removing punctions using strings
+
+
+def remove_punctuation(text):
+    return text.translate(str.maketrans('','',string.punctuation))
+
+df['line'] = df['line'].apply(remove_punctuation)
 
 
 
-nltk.download('stopwords')
-stop_words = list(stopwords.words('english'))
-for stop_word in stop_words:
-    regex_stopword = r"\b" + stop_word + r"\b"
-    df['line'] = df['line'].str.replace(regex_stopword, '')
 
+#removing stopwords
+
+stop_words = set(stopwords.words('english'))
+print(stop_words)
+def remove_stopwords(text):
+    tokens = text.split()
+    tokens = [word for word in tokens if word not in stop_words]
+
+    text = ' '.join(tokens)
+    return text
+
+
+df['line'] = df['line'].apply(remove_stopwords)
+
+nlp = spacy.load("en_core_web_sm")
+
+
+
+#I chose stemming over lemmentization
+
+
+def lemmatize_text(text):
+    doc = nlp(text)
+    lemmatized_text = ' '.join([token.lemma_ for token in doc])
+    return lemmatized_text
+
+df['line'] = df['line'].apply(lemmatize_text)
+
+
+
+from sklearn.feature_extraction.text import CountVectorizer
 cv = CountVectorizer()
-X = cv.fit_transform(df['line'])
+
+X = df['line']
 y = df['name']
 
+le = LabelEncoder()
 
-
+X = cv.fit_transform(X)
+y = le.fit_transform(y)
 
 from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.3,stratify=y,random_state = 42)
-
-from sklearn.linear_model import LogisticRegression
-lr = LogisticRegression()
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.20,random_state=42)
 
 
-from sklearn.ensemble import RandomForestClassifier,GradientBoostingClassifier
-RFC = RandomForestClassifier()
+
+
+
+from sklearn.naive_bayes import MultinomialNB
+MNB = MultinomialNB()
+
+from sklearn.svm import SVC
+svc = SVC(probability=True)
+
+from sklearn.ensemble import GradientBoostingClassifier
 GBC = GradientBoostingClassifier()
+from sklearn.metrics import accuracy_score,classification_report
 
-
-
-from sklearn.tree import DecisionTreeClassifier
-tree = DecisionTreeClassifier()
-
-from sklearn.metrics import accuracy_score,confusion_matrix,classification_report
-
-def evaluate(X_train,X_test,y_train,y_test,model):
-    model = model.fit(X_train,y_train)
+def evaluate_models(X_train,X_test,y_train,y_test,model):
+    model.fit(X_train,y_train)
     pred = model.predict(X_test)
     acc = accuracy_score(y_test,pred)
-    con = confusion_matrix(y_test,pred)
-    clf_rpt = classification_report(y_test, pred)
-    print('confusion matrix',con)
-    print(f'{model.__class__.__name__}, --Accuracy-- {acc*100:.2f}%; --Classification Report-- {clf_rpt}')
+    clf_rpt = classification_report(y_test,pred)
+    print(f'{model.__class__.__name__}, --ACC-- {acc*100:.2f}%; --Classification Report-- {clf_rpt}%')
     return pred
 
 
 
-RFC_pred = evaluate(X_train, X_test, y_train, y_test,RFC)
-GBC_pred = evaluate(X_train, X_test, y_train, y_test, GBC)
-tree_pred = evaluate(X_train, X_test, y_train, y_test, tree)
-lr_pred = evaluate(X_train, X_test, y_train, y_test, lr)
+MNB_pred = evaluate_models(X_train, X_test, y_train, y_test, MNB)
+svc_pred = evaluate_models(X_train, X_test, y_train, y_test, svc)
+GBC_pred = evaluate_models(X_train, X_test, y_train, y_test, GBC)
+
+
+
+
 
 
 
