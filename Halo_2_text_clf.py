@@ -1,116 +1,128 @@
+import nltk
 from nltk.corpus import stopwords
 import pandas as pd
-import spacy
-import re
-import string
 import warnings
 warnings.filterwarnings('ignore')
-from sklearn.preprocessing import LabelEncoder
-
-
-
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 df = pd.read_csv('C:/ML/python/data/arbiter.csv',delimiter=',')
+df.isnull().sum()
+df.duplicated().sum()
+
+
+
+df['name'].drop_duplicates(inplace=True)
+
+fig, axs = plt.subplots(figsize=(6,5)) 
+sns.countplot(x='name',data=df,ax=axs)
+axs.set_xticklabels(axs.get_xticklabels(),rotation=40,ha="right")
+plt.tight_layout()
+plt.show()
 
 
 df['line'] = df['line'].str.lower()
-df['name'] = df['name'].str.lower()
+df['name'] =df['name'].str.lower()
+
+import string
+PUNC = string.punctuation
+
+def remove_punc(text):
+    return text.translate(str.maketrans("","",PUNC))
 
 
+df['line'] = df['line'].apply(remove_punc)
 
 
-def remove_html_tags(text):
-    pattern = r'[^a-zA-Z0-9\s]'
-    text = re.sub(pattern,'',text)
-    return text
+df['line'] = df['line'].str.replace("\d","")
+df['line'] = df['line'].str.replace("[^\w\s]","")
 
-df['line'] = df['line'].apply(remove_html_tags)
+
 print(df['line'])
-print(df['name'])
-
-
-#removing punctions using strings
-
-
-def remove_punctuation(text):
-    return text.translate(str.maketrans('','',string.punctuation))
-
-df['line'] = df['line'].apply(remove_punctuation)
 
 
 
+from nltk.tokenize import word_tokenize
+sw = set(stopwords.words('english'))
 
-#removing stopwords
-
-stop_words = set(stopwords.words('english'))
-print(stop_words)
 def remove_stopwords(text):
-    tokens = text.split()
-    tokens = [word for word in tokens if word not in stop_words]
-
-    text = ' '.join(tokens)
-    return text
-
+    tokens = word_tokenize(text)
+    filtered_tokens = [word for word in tokens if word.lower() not in sw]
+    return ' '.join(filtered_tokens)
 
 df['line'] = df['line'].apply(remove_stopwords)
-
-nlp = spacy.load("en_core_web_sm")
-
+print(df['line'])
 
 
-#I chose stemming over lemmentization
+from wordcloud import WordCloud
 
 
-def lemmatize_text(text):
-    doc = nlp(text)
-    lemmatized_text = ' '.join([token.lemma_ for token in doc])
-    return lemmatized_text
-
-df['line'] = df['line'].apply(lemmatize_text)
+nltk.download("omw-1.4")
+nltk.download("wordnet")
 
 
 
-from sklearn.feature_extraction.text import CountVectorizer
+text = " ".join(i for i in df.line)
+
+wordcloud = WordCloud(
+    background_color="#6B5B95",
+    colormap="Set2",
+    collocations=False).generate(text)
+
+plt.figure(figsize=(10,6))
+plt.imshow(wordcloud, interpolation="bilinear")
+plt.axis("off")
+plt.title("Like Water I EBB")
+plt.show()
+
+
+print(text.count("arbiter"))
+print(text.count("prophet"))
+print(text.count("council"))
+
+
+from sklearn.feature_extraction.text import CountVectorizer,TfidfVectorizer
 cv = CountVectorizer()
+tfid = TfidfVectorizer()
 
-X = df['line']
-y = df['name']
-
-le = LabelEncoder()
-
-X = cv.fit_transform(X)
-y = le.fit_transform(y)
 
 from sklearn.model_selection import train_test_split
-X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.20,random_state=42)
+X = df['line']
+X = cv.fit_transform(X).toarray()
+y = df['name']
+
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.20,random_state=1)
 
 
 
 
-
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.naive_bayes import GaussianNB,MultinomialNB
+GNB = GaussianNB()
 MNB = MultinomialNB()
 
-from sklearn.svm import SVC
-svc = SVC(probability=True)
 
-from sklearn.ensemble import GradientBoostingClassifier
-GBC = GradientBoostingClassifier()
+
+from sklearn.linear_model import PassiveAggressiveClassifier,LogisticRegression
+PC = PassiveAggressiveClassifier()
+lr = LogisticRegression()
+
 from sklearn.metrics import accuracy_score,classification_report
 
-def evaluate_models(X_train,X_test,y_train,y_test,model):
-    model.fit(X_train,y_train)
+def evaluate_model(X_train,X_test,y_train,y_test,model):
+    model = model.fit(X_train,y_train)
     pred = model.predict(X_test)
     acc = accuracy_score(y_test,pred)
     clf_rpt = classification_report(y_test,pred)
-    print(f'{model.__class__.__name__}, --ACC-- {acc*100:.2f}%; --Classification Report-- {clf_rpt}%')
+    print(f'{model.__class__.__name__}, --ACC-- {acc*100:.2f}%; --Clf Rpt-- {clf_rpt}')
     return pred
 
 
 
-MNB_pred = evaluate_models(X_train, X_test, y_train, y_test, MNB)
-svc_pred = evaluate_models(X_train, X_test, y_train, y_test, svc)
-GBC_pred = evaluate_models(X_train, X_test, y_train, y_test, GBC)
+
+GNB_pred = evaluate_model(X_train, X_test, y_train, y_test, GNB)
+PC_pred = evaluate_model(X_train, X_test, y_train, y_test, PC)
+MNB_pred = evaluate_model(X_train, X_test, y_train, y_test, MNB)
+lr_pred = evaluate_model(X_train, X_test, y_train, y_test, lr)
 
 
 
