@@ -44,6 +44,9 @@ print(df['line'])
 
 from nltk.tokenize import word_tokenize
 sw = set(stopwords.words('english'))
+nltk.download("omw-1.4")
+nltk.download("wordnet")
+nltk.download("stopwords")
 
 def remove_stopwords(text):
     tokens = word_tokenize(text)
@@ -56,12 +59,6 @@ print(df['line'])
 
 from wordcloud import WordCloud
 
-
-nltk.download("omw-1.4")
-nltk.download("wordnet")
-
-
-
 text = " ".join(i for i in df.line)
 
 wordcloud = WordCloud(
@@ -69,7 +66,7 @@ wordcloud = WordCloud(
     colormap="Set2",
     collocations=False).generate(text)
 
-plt.figure(figsize=(10,6))
+plt.figure(figsize=(12,6))
 plt.imshow(wordcloud, interpolation="bilinear")
 plt.axis("off")
 plt.title("Like Water I EBB")
@@ -96,8 +93,7 @@ X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.20,random_state=
 
 
 
-from sklearn.naive_bayes import GaussianNB,MultinomialNB
-GNB = GaussianNB()
+from sklearn.naive_bayes import MultinomialNB
 MNB = MultinomialNB()
 
 
@@ -106,7 +102,7 @@ from sklearn.linear_model import PassiveAggressiveClassifier,LogisticRegression
 PC = PassiveAggressiveClassifier()
 lr = LogisticRegression()
 
-from sklearn.metrics import accuracy_score,classification_report
+from sklearn.metrics import accuracy_score,classification_report,confusion_matrix
 
 def evaluate_model(X_train,X_test,y_train,y_test,model):
     model = model.fit(X_train,y_train)
@@ -119,10 +115,24 @@ def evaluate_model(X_train,X_test,y_train,y_test,model):
 
 
 
-GNB_pred = evaluate_model(X_train, X_test, y_train, y_test, GNB)
+
 PC_pred = evaluate_model(X_train, X_test, y_train, y_test, PC)
 MNB_pred = evaluate_model(X_train, X_test, y_train, y_test, MNB)
 lr_pred = evaluate_model(X_train, X_test, y_train, y_test, lr)
+
+
+
+def confusion_matrix_(X_train,X_test,y_train,y_test,model):
+    model = model.fit(X_train,y_train)
+    pred = model.predict(X_test)
+    con = confusion_matrix(y_test,pred)
+    heatmap = sns.heatmap(con,annot=True,fmt="d",cmap="Blues")
+    heatmap.set_title(f'Confusion Matrix for {model.__class__.__name__}')
+    return heatmap
+
+confusion_matrix_(X_train, X_test, y_train, y_test,MNB)
+confusion_matrix_(X_train, X_test, y_train, y_test,PC)
+confusion_matrix_(X_train, X_test, y_train, y_test,lr)
 
 
 
