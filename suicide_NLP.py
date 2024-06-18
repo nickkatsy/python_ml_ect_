@@ -12,7 +12,7 @@ nltk.download("wornet")
 nltk.download("punkt")
 
 
-df = pd.read_csv("C:/ML/python/data/Suicide_Ideation_Dataset(Twitter-based).csv",delimiter=',')
+df = pd.read_csv("https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/Suicide_Ideation_Dataset(Twitter-based).csv")
 
 
 df.head(10)
