@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-df = pd.read_csv("C:/ML/python/data/WA_Fn-UseC_-Telco-Customer-Churn.csv",delimiter=',')
+df = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/WA_Fn-UseC_-Telco-Customer-Churn.csv')
 
 df.info()
 df.isna().sum()
