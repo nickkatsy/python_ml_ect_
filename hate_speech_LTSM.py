@@ -14,7 +14,7 @@ nltk.download("punkt")
 import warnings
 warnings.filterwarnings("ignore")
 
-df = pd.read_csv("https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/labeled_data.csv")
+df = pd.read_csv('C:/ML/python/data/labeled_data.csv',delimiter=',')
 
 df.dtypes
 df.isna().sum()
@@ -69,7 +69,11 @@ df['tweet'] = df['tweet'].apply(remove_punctuation)
 df['tweet'] = df['tweet'].str.replace("rt","")
 df['tweet'] = df['tweet'].str.replace("\d","")
 df["tweet"] = df["tweet"].str.replace("[^\w\s]","")
-
+df['tweet'] = df['tweet'].str.replace("  "," ")
+df['tweet'] = df['tweet'].str.replace('"','')
+df['tweet'] = df['tweet'].str.replace("'s", "")
+df['tweet'] = df['tweet'].str.replace("\n","")
+df['tweet'] = df['tweet'].str.replace("\t","")
 
 
 sw = list(stopwords.words('english'))
@@ -178,56 +182,77 @@ plt.show()
 from sklearn.preprocessing import LabelEncoder
 le = LabelEncoder()
 
-
+df['hate_speech'] = [1 if X == 1 else 0 for X in df['class']]
 from sklearn.model_selection import train_test_split
 
 X = df['tweet']
 y = df['hate_speech']
 
-X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.20,random_state=1)
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.15,random_state=1)
 
 
 
 
 
 from tensorflow.keras.preprocessing.text import Tokenizer
-from keras.models import Sequential
-from keras.layers import LSTM,Embedding, Dense
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM,Embedding, Dense,SpatialDropout1D,Dropout
 
 
-num_words = 10000
 
 
-token = Tokenizer(num_words=num_words)
+
+token = Tokenizer()
 token.fit_on_texts(X_train)
 
 word_index = token.word_index
+print(word_index)
+
 
 X_train = token.texts_to_sequences(X_train)
 X_test = token.texts_to_sequences(X_test)
 
+max_length = 0
+for sequence in X_train:
+    sequence_length = len(sequence)
+    if sequence_length > max_length:
+        max_length = sequence_length
+
+
+print(max_length)
+
 X_train[0]
 X_train[123]
-max_len = max([len(x) for x in X_train])
-from keras.utils import pad_sequences
 
-X_train = pad_sequences(X_train,maxlen=max_len)
-X_test = pad_sequences(X_test,maxlen=max_len)
-y_train[123]
+
+from tensorflow.keras.utils import pad_sequences
+
+X_train = pad_sequences(X_train,25,padding="post")
+X_test = pad_sequences(X_test,25,padding="post")
+
+
 
 RNN = Sequential()
-RNN.add(Embedding(len(word_index) + 1,output_dim=max_len,input_length=max_len))
-RNN.add(LSTM(40, dropout=0.2, recurrent_dropout=0.2))
+RNN.add(Embedding(len(word_index) + 1,output_dim=100,input_length=25))
+RNN.add(SpatialDropout1D(0.5))
+RNN.add(LSTM(25, dropout=0.2, recurrent_dropout=0.2))
+RNN.add(Dropout(0.5))
 RNN.add(Dense(1, activation='sigmoid'))
 RNN.compile(loss='binary_crossentropy', optimizer='adam',metrics=['accuracy'])
 
-batch_size = 128
+batch_size = 64
 
-history = RNN.fit(X_train, y_train, epochs=10, batch_size=batch_size,validation_data=(X_test,y_test))
-results = RNN.evaluate(X_test,y_test)
-print(results)
-RNN.summary()
+history = RNN.fit(X_train, y_train, epochs=20, batch_size=batch_size,validation_data=(X_test,y_test))
 
+print('accuracy: ',history.history['accuracy'])
+print("val_accuracy",history.history['val_accuracy'])
+print("val_loss",history.history["val_loss"])
+print("loss: ",history.history['loss'])
+
+
+#bad
+
+#training and val accuracy
 plt.plot(history.history['accuracy'])
 plt.plot(history.history['val_accuracy'])
 plt.title('Model accuracy')
@@ -235,4 +260,16 @@ plt.ylabel('Accuracy')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Validation'], loc='upper left')
 plt.show()
+
+
+#training and evaluation resluts
+
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Model loss')
+plt.ylabel('loss')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Validation'], loc='upper left')
+plt.show()
+
 
