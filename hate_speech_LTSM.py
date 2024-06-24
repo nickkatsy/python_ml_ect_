@@ -1,18 +1,17 @@
-import pandas as pd
 import nltk
 from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 import re
 import string
-import matplotlib.pyplot as plt
-import seaborn as sns
-nltk.download("stopwords")
-nltk.download("omw-1.4")
-nltk.download("wordnet")
-nltk.download("punkt")
+import pandas as pd
 import warnings
 warnings.filterwarnings("ignore")
+nltk.download("stopwords")
+nltk.download("wordnet")
+nltk.download("punkt")
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 
 df = pd.read_csv('C:/ML/python/data/labeled_data.csv',delimiter=',')
 
@@ -33,71 +32,37 @@ axs.set_xticklabels(axs.get_xticklabels(),rotation=40,ha="right")
 plt.tight_layout()
 plt.show()
 
-
-df['tweet'] = df['tweet'].str.lower()
-print(df['tweet'])
-
-
-
-
-
-def remove_html_tags(text):
-    pattern = r'<.*?>' 
-    text = re.sub(pattern, '', text)
-    return text
-
-df['tweet'] = df['tweet'].apply(remove_html_tags)
-
-def remove_url(text):
-    pattern = re.compile(r'https?://\S+|www\.\S+')
-    return pattern.sub(r'',text)
-
-
-df['tweet'] = df['tweet'].apply(remove_url)
-
-
-
-
-PUNC = string.punctuation
-
-def remove_punctuation(text):
-    return text.translate(str.maketrans('','',PUNC))
-
-df['tweet'] = df['tweet'].apply(remove_punctuation)
-
-
-df['tweet'] = df['tweet'].str.replace("rt","")
-df['tweet'] = df['tweet'].str.replace("\d","")
-df["tweet"] = df["tweet"].str.replace("[^\w\s]","")
-df['tweet'] = df['tweet'].str.replace("  "," ")
-df['tweet'] = df['tweet'].str.replace('"','')
-df['tweet'] = df['tweet'].str.replace("'s", "")
-df['tweet'] = df['tweet'].str.replace("\n","")
-df['tweet'] = df['tweet'].str.replace("\t","")
-
-
-sw = list(stopwords.words('english'))
-
-def remove_stopwords(text):
-    tokens = word_tokenize(text)
-    filtered_tokens = [word for word in tokens if word.lower() not in sw]
-    return ' '.join(filtered_tokens)
-
-df['tweet'] = df['tweet'].apply(remove_stopwords)
-
-
-
+sw = set(stopwords.words("english"))
 
 lemma = WordNetLemmatizer()
 
-def lemm_text(text):
-    tokens = word_tokenize(text)
-    lemma_tokens = [lemma.lemmatize(token) for token in tokens]
-    return " ".join(lemma_tokens)
+def clean_text(text):
+    
+    text = str(text).lower()
+    
+    text = re.sub('<.*?>+', '',text)
+    
+    text = re.sub('https?://\S+|www\.\S+', '', text)
+    
+    text = re.sub('[%s]' % re.escape(string.punctuation), '', text)
+    text = re.sub('rt', '',text)
+    text = re.sub('\d', '',text)
+    text = re.sub('\w*\d\w*', '', text)
+    
+    text = re.sub('  ',' ',text)
+    
+    text = [word for word in text.split('  ') if word not in sw]
+    
+    text = ' '.join(text)
+    
+    text = [lemma.lemmatize(word) for word in text.split('  ')]
+    
+    text = " ".join(text)
+    
+    return text
 
-df['tweet'] = df['tweet'].apply(lemm_text)
 
-
+df['tweet'] = df['tweet'].apply(clean_text)
 
 
 from textblob import TextBlob
@@ -145,8 +110,6 @@ print(text_.count("love"))
 print(text_.count("faggot"))
 
 
-#ok, more uncessary hatred
-
 Hate_tweet = (df['sentiment'] == "Hate_Speech").astype('int32')
 Hate_tweet.describe()
 
@@ -155,6 +118,9 @@ offensive_tweets.describe()
 
 neither = (df['sentiment'] == "Neither").astype('int32')
 neither.value_counts()
+
+#ok, more uncessary hatred
+
 
 plt.figure(figsize=(10,6))
 sns.countplot(x=Hate_tweet)
@@ -167,7 +133,6 @@ plt.show()
 sns.countplot(x=neither)
 plt.show()
 
-
 #length of tweets
 
 
@@ -178,39 +143,70 @@ plt.title('Histogram of hateful tweets and just degeneracy')
 plt.show()
 
 
-
-from sklearn.preprocessing import LabelEncoder
-le = LabelEncoder()
-
-df['hate_speech'] = [1 if X == 1 else 0 for X in df['class']]
 from sklearn.model_selection import train_test_split
 
+from sklearn.feature_extraction.text import CountVectorizer
+cv = CountVectorizer()
+
+X_ = df['tweet']
+X_ = cv.fit_transform(X_).toarray()
+y_ = df['class']
+
+
+X_train,X_test,y_train,y_test = train_test_split(X_,y_,test_size=.20,random_state=42)
+
+
+from sklearn.naive_bayes import MultinomialNB,BernoulliNB
+BNB = BernoulliNB()
+MNB = MultinomialNB()
+
+
+from sklearn.linear_model import LogisticRegression,PassiveAggressiveClassifier
+lr = LogisticRegression()
+PA = PassiveAggressiveClassifier()
+
+
+from sklearn.metrics import accuracy_score,classification_report
+
+
+def evaluate_model(X_train,X_test,y_train,y_test,model):
+    model = model.fit(X_train,y_train)
+    pred = model.predict(X_test)
+    acc = accuracy_score(y_test,pred)
+    clf_rpt = classification_report(y_test,pred)
+    print(f'{model.__class__.__name__}, --Accuracy-- {acc*100:.2f}%; --Clf RPT-- {clf_rpt}')
+    return pred
+
+lr_pred = evaluate_model(X_train, X_test, y_train, y_test, lr)
+PA_pred = evaluate_model(X_train, X_test, y_train, y_test, PA)
+MNB_pred = evaluate_model(X_train, X_test, y_train, y_test, MNB)
+BNB_pred = evaluate_model(X_train, X_test, y_train, y_test, BNB)
+
+
 X = df['tweet']
-y = df['hate_speech']
-
-X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.15,random_state=1)
+y = df['class']
 
 
-
-
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.15, random_state=42)
 
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM,Embedding, Dense,SpatialDropout1D,Dropout
+from tensorflow.keras.layers import LSTM,Embedding, Dense,SpatialDropout1D
+from tensorflow.keras.utils import to_categorical
 
 
+y_train = to_categorical(y_train)
+y_test = to_categorical(y_test)
 
+tokenizer = Tokenizer()
 
+tokenizer.fit_on_texts(X_train)
 
-token = Tokenizer()
-token.fit_on_texts(X_train)
-
-word_index = token.word_index
+word_index = tokenizer.word_index
 print(word_index)
 
-
-X_train = token.texts_to_sequences(X_train)
-X_test = token.texts_to_sequences(X_test)
+X_train = tokenizer.texts_to_sequences(X_train)
+X_test = tokenizer.texts_to_sequences(X_test)
 
 max_length = 0
 for sequence in X_train:
@@ -221,36 +217,29 @@ for sequence in X_train:
 
 print(max_length)
 
-X_train[0]
-X_train[123]
-
-
 from tensorflow.keras.utils import pad_sequences
 
-X_train = pad_sequences(X_train,25,padding="post")
-X_test = pad_sequences(X_test,25,padding="post")
+X_train = pad_sequences(X_train,33,padding='post')
+X_test = pad_sequences(X_test,33,padding='post')
+
 
 
 
 RNN = Sequential()
-RNN.add(Embedding(len(word_index) + 1,output_dim=100,input_length=25))
-RNN.add(SpatialDropout1D(0.5))
-RNN.add(LSTM(25, dropout=0.2, recurrent_dropout=0.2))
-RNN.add(Dropout(0.5))
-RNN.add(Dense(1, activation='sigmoid'))
+RNN.add(Embedding(len(word_index) + 1, output_dim=20, input_length=33))
+RNN.add(SpatialDropout1D(0.2))
+RNN.add(LSTM(20, dropout=0.2,recurrent_dropout=0.2))
+RNN.add(Dense(3, activation='sigmoid'))
 RNN.compile(loss='binary_crossentropy', optimizer='adam',metrics=['accuracy'])
-
 batch_size = 64
 
-history = RNN.fit(X_train, y_train, epochs=20, batch_size=batch_size,validation_data=(X_test,y_test))
+history = RNN.fit(X_train,y_train,batch_size=batch_size,epochs=10,validation_data=(X_test,y_test))
+results = RNN.evaluate(X_test,y_test)
+pred = RNN.predict(X_test)
+print(results)
+print("Accuracy: ",max(history.history['accuracy']))
+print("Max vallidation accuracy: ",max(history.history['val_accuracy']))
 
-print('accuracy: ',history.history['accuracy'])
-print("val_accuracy",history.history['val_accuracy'])
-print("val_loss",history.history["val_loss"])
-print("loss: ",history.history['loss'])
-
-
-#bad
 
 #training and val accuracy
 plt.plot(history.history['accuracy'])
@@ -271,5 +260,4 @@ plt.ylabel('loss')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Validation'], loc='upper left')
 plt.show()
-
 
