@@ -5,6 +5,7 @@ import re
 import string
 import pandas as pd
 import warnings
+from nltk.tokenize import word_tokenize
 warnings.filterwarnings("ignore")
 nltk.download("stopwords")
 nltk.download("wordnet")
@@ -13,7 +14,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-df = pd.read_csv('https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/labeled_data.csv')
+df = pd.read_csv('C:/ML/python/data/labeled_data.csv',delimiter=',')
 
 df.dtypes
 df.isna().sum()
@@ -32,9 +33,6 @@ axs.set_xticklabels(axs.get_xticklabels(),rotation=40,ha="right")
 plt.tight_layout()
 plt.show()
 
-sw = set(stopwords.words("english"))
-
-lemma = WordNetLemmatizer()
 
 def clean_text(text):
     
@@ -51,13 +49,7 @@ def clean_text(text):
     
     text = re.sub('  ',' ',text)
     
-    text = [word for word in text.split('  ') if word not in sw]
-    
-    text = ' '.join(text)
-    
-    text = [lemma.lemmatize(word) for word in text.split('  ')]
-    
-    text = " ".join(text)
+
     
     return text
 
@@ -65,14 +57,32 @@ def clean_text(text):
 df['tweet'] = df['tweet'].apply(clean_text)
 
 
-from textblob import TextBlob
+
+sw = set(stopwords.words("english"))
+
+def remove_stopwords(text):
+    tokens = word_tokenize(text)
+    cleaned_tokens = [word for word in tokens if word.lower() not in sw]
+    return " ".join(cleaned_tokens)
+
+
+df['tweet'] = df['tweet'].apply(remove_stopwords)
 
 
 
-text_ = " ".join(i for i in df.tweet)
-print(text_)
+lemma = WordNetLemmatizer()
 
-hateblob = TextBlob(text_)
+def lemmatization(text):
+    tokens = word_tokenize(text)
+    lemma_tokens = [lemma.lemmatize(token) for token in tokens]
+    return " ".join(lemma_tokens)
+
+
+df['tweet'] = df['tweet'].apply(lemmatization)
+
+
+
+
 
 from wordcloud import WordCloud
 
@@ -97,17 +107,17 @@ plt.show()
 #these people did and shame you them(you possibly)
 
 
-print(text_.count("bitch"))
-print(text_.count("bitches"))
-print(text_.count("nigga"))
-print(text_.count("niggas"))
-print(text_.count("hoe"))
-print(text_.count("trash"))
-print(text_.count("pussy"))
-print(text_.count("fuck"))
-print(text_.count("fucking"))
-print(text_.count("love"))
-print(text_.count("faggot"))
+print(text.count("bitch"))
+print(text.count("bitches"))
+print(text.count("nigga"))
+print(text.count("niggas"))
+print(text.count("hoe"))
+print(text.count("trash"))
+print(text.count("pussy"))
+print(text.count("fuck"))
+print(text.count("fucking"))
+print(text.count("love"))
+print(text.count("faggot"))
 
 
 Hate_tweet = (df['sentiment'] == "Hate_Speech").astype('int32')
@@ -183,6 +193,10 @@ MNB_pred = evaluate_model(X_train, X_test, y_train, y_test, MNB)
 BNB_pred = evaluate_model(X_train, X_test, y_train, y_test, BNB)
 
 
+
+#time for keras tokenizer
+
+
 X = df['tweet']
 y = df['class']
 
@@ -219,16 +233,16 @@ print(max_length)
 
 from tensorflow.keras.utils import pad_sequences
 
-X_train = pad_sequences(X_train,33,padding='post')
-X_test = pad_sequences(X_test,33,padding='post')
+X_train = pad_sequences(X_train,25,padding='post')
+X_test = pad_sequences(X_test,25,padding='post')
 
 
 
 
 RNN = Sequential()
-RNN.add(Embedding(len(word_index) + 1, output_dim=20, input_length=33))
+RNN.add(Embedding(len(word_index) + 1, output_dim=25, input_length=25))
 RNN.add(SpatialDropout1D(0.2))
-RNN.add(LSTM(20, dropout=0.2,recurrent_dropout=0.2))
+RNN.add(LSTM(25, dropout=0.2,recurrent_dropout=0.2))
 RNN.add(Dense(3, activation='sigmoid'))
 RNN.compile(loss='binary_crossentropy', optimizer='adam',metrics=['accuracy'])
 batch_size = 64
@@ -237,7 +251,7 @@ history = RNN.fit(X_train,y_train,batch_size=batch_size,epochs=10,validation_dat
 results = RNN.evaluate(X_test,y_test)
 pred = RNN.predict(X_test)
 print(results)
-print("Accuracy: ",max(history.history['accuracy']))
+print("Max Accuracy: ",max(history.history['accuracy']))
 print("Max vallidation accuracy: ",max(history.history['val_accuracy']))
 
 
