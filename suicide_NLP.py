@@ -8,11 +8,11 @@ from nltk.stem.wordnet import WordNetLemmatizer
 import warnings
 warnings.filterwarnings('ignore')
 nltk.download("stopwords")
-nltk.download("wornet")
+nltk.download("wordnet")
 nltk.download("punkt")
 
 
-df = pd.read_csv("https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/Suicide_Ideation_Dataset(Twitter-based).csv")
+df = pd.read_csv("C:/ML/python/data/Suicide_Ideation_Dataset(Twitter-based).csv",delimiter=',')
 
 
 df.head(10)
@@ -29,42 +29,41 @@ df['class'] = df['Suicide'].map({"Not Suicide post":0,"Potential Suicide post ":
 
 df['class'].value_counts()
 
-df['Tweet'] = df['Tweet'].str.lower()
-
-
-def remove_html_tags(text):
-    pattern = r'<.*?>'
-    text = re.sub(pattern, "", text)
-    return text
-
-
-df['Tweet'] = df['Tweet'].str.lower()
-
-df['Tweet'] = df['Tweet'].str.replace("\d","")
-df['Tweet'] = df['Tweet'].str.replace("[^\w\s]","")
-df['Tweet'] = df['Tweet'].str.replace("rt","")
-
-
-
-
-def remove_url(text):
-    pattern = re.compile(r'https?://\S+|www\.\S+')
-    return pattern.sub(r'',text)
-
-df['Tweet'] = df['Tweet'].apply(remove_url)
-
-
 
 PUNC = string.punctuation
 
 
-def remove_punctuations(text):
-    return text.translate(str.maketrans("","",PUNC))
+def clean_text(text):
+    
+    
+    text = str(text).lower()
+    
+    text = re.sub(r'<.*?>+', '',text)
+    
+    text = re.sub(r'https?://\S+|www\.\S+', '', text)
+    
+    text = re.sub(r'\d', '',text)
+    text = re.sub('[%s]' % re.escape(PUNC), '',text)
+    
+    text = re.sub(' +', ' ', text)
+    
+    text = re.sub('rt', '',text)
+
+    
+    
+    return text
 
 
-df['Tweet'] = df['Tweet'].apply(remove_punctuations)
+df['Tweet'] = df['Tweet'].apply(clean_text)
 
-print(df['Tweet'])
+
+import contractions
+
+def expand_contractions(text):
+    expanded_text = contractions.fix(text)
+    return expanded_text
+
+df['Tweet'] = df['Tweet'].apply(expand_contractions)
 
 
 sw = set(stopwords.words("english"))
@@ -145,6 +144,79 @@ GNB_pred = evaluate_bayes(X_train, X_test, y_train, y_test, GNB)
 BNB_pred = evaluate_bayes(X_train, X_test, y_train, y_test, BNB)
 PA_pred = evaluate_bayes(X_train, X_test, y_train, y_test, PA)
 lr_pred = evaluate_bayes(X_train, X_test, y_train, y_test, lr)
+
+
+X = df['Tweet']
+y = df['class']
+
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=.15,random_state=1)
+
+
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.utils import pad_sequences,to_categorical
+
+tokenizer = Tokenizer()
+
+
+tokenizer.fit_on_texts(X_train)
+word_index = tokenizer.word_index
+print(len(word_index))
+
+
+
+X_train = tokenizer.texts_to_sequences(X_train)
+X_test = tokenizer.texts_to_sequences(X_test)
+y_train = to_categorical(y_train)
+y_test = to_categorical(y_test)
+
+
+max_length = 0
+for sequence in X_train:
+    sequence_length = len(sequence)
+    if sequence_length > max_length:
+        max_length = sequence_length
+
+
+print(max_length)
+
+X_train = pad_sequences(X_train,max_length,padding='post')
+X_test = pad_sequences(X_test,max_length,padding='post')
+
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Embedding,LSTM,Dense,Bidirectional,Dropout
+
+RNN = Sequential()
+RNN.add(Embedding(input_dim=len(word_index)+1, output_dim=150, input_length=max_length))
+RNN.add(Bidirectional(LSTM(150, dropout=0.2, recurrent_dropout=0.2)))
+RNN.add(Dropout(0.3))
+RNN.add(Dense(50,activation='relu'))
+RNN.add(Dense(2, activation='sigmoid'))
+RNN.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+history = RNN.fit(X_train,y_train,batch_size=128,epochs=10,validation_data=(X_test, y_test))
+
+
+
+
+plt.plot(history.history['accuracy'])
+plt.plot(history.history['val_accuracy'])
+plt.title('Model accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Validation'], loc='upper left')
+plt.show()
+
+
+
+
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Model loss')
+plt.ylabel('loss')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Validation'], loc='upper left')
+plt.show()
 
 
 
