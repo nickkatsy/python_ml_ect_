@@ -12,7 +12,7 @@ nltk.download("wordnet")
 nltk.download("punkt")
 
 
-df = pd.read_csv("C:/ML/python/data/Suicide_Ideation_Dataset(Twitter-based).csv",delimiter=',')
+df = pd.read_csv("https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/Suicide_Ideation_Dataset(Twitter-based).csv")
 
 
 df.head(10)
@@ -217,7 +217,6 @@ plt.ylabel('loss')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Validation'], loc='upper left')
 plt.show()
-
 
 
 
