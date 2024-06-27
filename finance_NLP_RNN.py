@@ -5,6 +5,7 @@ import re
 import string
 import matplotlib.pyplot as plt
 import seaborn as sns
+from nltk.stem import SnowballStemmer
 from nltk.stem import WordNetLemmatizer
 nltk.download("punkt")
 nltk.download("wordnet")
@@ -86,7 +87,7 @@ df['Sentence'] = df['Sentence'].apply(remove_stopwords)
 
 
 lemma = WordNetLemmatizer()
-
+stemma = SnowballStemmer("english")
 
 def lemm_text(text):
     tokens = word_tokenize(text)
@@ -204,14 +205,14 @@ X_test = pad_sequences(X_test,max_length,padding='post')
 
 RNN = Sequential()
 RNN.add(Embedding(input_dim=len(word_index)+1,output_dim=50,input_length=max_length))
-RNN.add(SpatialDropout1D(0.1))
+RNN.add(SpatialDropout1D(0.2))
 RNN.add(Bidirectional(LSTM(15,dropout=0.1,recurrent_dropout=0.1)))
 RNN.add(Dropout(0.2))
-RNN.add(Dense(50,activation='relu'))
-RNN.add(Dropout(0.3))
+RNN.add(Dense(1))
+RNN.add(Dropout(0.2))
 RNN.add(Dense(3,activation='sigmoid'))
 RNN.compile(optimizer='adam',loss='categorical_crossentropy',metrics=['accuracy'])
-history = RNN.fit(X_train,y_train,batch_size=64,epochs=10,validation_data=(X_test,y_test))
+history = RNN.fit(X_train,y_train,batch_size=64,epochs=20,validation_split=0.1)
 
 
 
@@ -233,6 +234,3 @@ plt.ylabel('loss')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Validation'], loc='upper left')
 plt.show()
-
-
-
