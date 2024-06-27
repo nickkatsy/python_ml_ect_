@@ -146,6 +146,25 @@ PA_pred = evaluate_bayes(X_train, X_test, y_train, y_test, PA)
 lr_pred = evaluate_bayes(X_train, X_test, y_train, y_test, lr)
 
 
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+
+
+def confusion_matrix_plot(X_train,X_test,y_train,y_test,model):
+    model = model.fit(X_train,y_train)
+    pred = model.predict(X_test)
+    con = confusion_matrix(y_test,pred)
+    heatmap = sns.heatmap(con,annot=True,fmt="d",cmap="coolwarm")
+    heatmap.set_title(f'Confusion Matrix for {model.__class__.__name__}')
+    return heatmap
+    
+confusion_matrix_plot(X_train, X_test, y_train, y_test,MNB)
+confusion_matrix_plot(X_train, X_test, y_train, y_test, GNB)
+confusion_matrix_plot(X_train, X_test, y_train, y_test, BNB)
+confusion_matrix_plot(X_train, X_test, y_train, y_test,PA)
+confusion_matrix_plot(X_train, X_test, y_train, y_test,lr)
+
+
 X = df['Tweet']
 y = df['class']
 
@@ -194,7 +213,7 @@ RNN.add(Dense(50,activation='relu'))
 RNN.add(Dense(2, activation='sigmoid'))
 RNN.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-history = RNN.fit(X_train,y_train,batch_size=128,epochs=10,validation_data=(X_test, y_test))
+history = RNN.fit(X_train,y_train,batch_size=128,epochs=10,validation_split=0.2)
 
 
 
@@ -203,17 +222,6 @@ plt.plot(history.history['accuracy'])
 plt.plot(history.history['val_accuracy'])
 plt.title('Model accuracy')
 plt.ylabel('Accuracy')
-plt.xlabel('Epoch')
-plt.legend(['Train', 'Validation'], loc='upper left')
-plt.show()
-
-
-
-
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.title('Model loss')
-plt.ylabel('loss')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Validation'], loc='upper left')
 plt.show()
