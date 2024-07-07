@@ -16,7 +16,7 @@ import demoji
 
 
 
-df = pd.read_csv("C:/ML/python/data/vaccination_tweets.csv",delimiter=',')
+df = pd.read_csv("https://raw.githubusercontent.com/nickkatsy/python_ml_ect_/master/vaccination_tweets.csv")
 
 df.head(10)
 df.isna().sum()
