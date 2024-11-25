@@ -127,7 +127,7 @@ def sentiment(label):
         return "Negative"
     elif label == 0:
         return "Neutral"
-    elif label >= 0:
+    elif label>0:
         return "Positive"
 
 
